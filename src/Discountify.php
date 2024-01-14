@@ -33,7 +33,7 @@ class Discountify implements DiscountifyInterface
     /**
      * @var ConditionManager
      */
-    protected $conditionManager;
+    protected ConditionManager $conditionManager;
 
     /**
      * Discountify constructor.

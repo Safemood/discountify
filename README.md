@@ -86,6 +86,7 @@ Discountify::setItems($items)
 // Calculate the total amount considering the set conditions and discounts
 
 $total = Discountify::total();
+
 // Calculate the total amount with the applied global discount
 
 $totalWithDiscount = Discountify::totalWithDiscount();

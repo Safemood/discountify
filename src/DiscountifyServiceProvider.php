@@ -2,6 +2,7 @@
 
 namespace Safemood\Discountify;
 
+use Illuminate\Contracts\Foundation\Application;
 use Safemood\Discountify\Commands\DiscountifyCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -10,16 +11,20 @@ class DiscountifyServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
-        /*
-         * This class is a Package Service Provider
-         *
-         * More info: https://github.com/spatie/laravel-package-tools
-         */
         $package
             ->name('discountify')
             ->hasConfigFile()
-            ->hasViews()
-            ->hasMigration('create_discountify_table')
             ->hasCommand(DiscountifyCommand::class);
+    }
+
+    public function bootingPackage()
+    {
+        $this->app->singleton(ConditionManager::class, function () {
+            return new ConditionManager();
+        });
+
+        $this->app->singleton(Discountify::class, function (Application $app) {
+            return new Discountify($app->make(ConditionManager::class));
+        });
     }
 }

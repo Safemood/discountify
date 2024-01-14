@@ -1,6 +1,6 @@
 {
     "name": "safemood/discountify",
-    "description": "Laravel package for dynamic discounts with custom conditions and support for global or item-specific discounts",
+    "description": "Laravel package for dynamic discounts with custom conditions.",
     "keywords": [
         "Safemood",
         "laravel",

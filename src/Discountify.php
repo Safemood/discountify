@@ -30,9 +30,6 @@ class Discountify implements DiscountifyInterface
 
     protected float $globalTaxRate;
 
-    /**
-     * @var ConditionManager
-     */
     protected ConditionManager $conditionManager;
 
     /**
@@ -48,10 +45,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Set the global discount.
-     *
-     * @param  int  $globalDiscount
      */
-    public function discount(float $globalDiscount): self
+    public function discount(int $globalDiscount): self
     {
         $this->globalDiscount = $globalDiscount;
 
@@ -132,7 +127,7 @@ class Discountify implements DiscountifyInterface
      */
     public function setGlobalDiscount(int $globalDiscount): self
     {
-        $this->globalDiscount = $globalDiscount ?? 0;
+        $this->globalDiscount = $globalDiscount;
 
         return $this;
     }
@@ -142,7 +137,7 @@ class Discountify implements DiscountifyInterface
      */
     public function setGlobalTaxRate(float $globalTaxRate): self
     {
-        $this->globalTaxRate = $globalTaxRate ?? 0;
+        $this->globalTaxRate = $globalTaxRate;
 
         return $this;
     }

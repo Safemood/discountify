@@ -5,7 +5,8 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/safemood/discountify/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/safemood/discountify/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/safemood/discountify.svg?style=flat-square)](https://packagist.org/packages/safemood/discountify)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+Discountify is a Laravel package designed for managing dynamic discounts with custom conditions. It provides support for both global and item-specific discounts, allowing you to create flexible and powerful discounting strategies. Easily define conditions and apply percentage-based discounts to enhance your e-commerce application.
+
 
 ## Support us
 
@@ -23,13 +24,6 @@ You can install the package via composer:
 composer require safemood/discountify
 ```
 
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag="discountify-migrations"
-php artisan migrate
-```
-
 You can publish the config file with:
 
 ```bash
@@ -43,11 +37,6 @@ return [
 ];
 ```
 
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag="discountify-views"
-```
 
 ## Usage
 

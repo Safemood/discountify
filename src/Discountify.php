@@ -30,9 +30,6 @@ class Discountify implements DiscountifyInterface
 
     protected float $globalTaxRate;
 
-    /**
-     * @var ConditionManager
-     */
     protected ConditionManager $conditionManager;
 
     /**

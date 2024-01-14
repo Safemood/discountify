@@ -71,6 +71,12 @@ class AppServiceProvider extends ServiceProvider
 
 ### Set Items, Global Discount, and Tax Rate
 ```php
+
+$items = [
+        ['id' => '1', 'quantity' => 2, 'price' => 50],
+        ['id' => '2', 'quantity' => 1, 'price' => 100, 'type' => 'special'],
+    ];
+
 // Set the items in the cart
 Discountify::setItems($items)
 

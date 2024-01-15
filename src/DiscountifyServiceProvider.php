@@ -17,7 +17,7 @@ class DiscountifyServiceProvider extends PackageServiceProvider
             ->hasCommand(DiscountifyCommand::class);
     }
 
-    public function bootingPackage()
+    public function packageRegistered()
     {
         $this->app->singleton(ConditionManager::class, function () {
             return new ConditionManager();

@@ -3,6 +3,7 @@
 namespace Safemood\Discountify;
 
 use Safemood\Discountify\Concerns\HasCalculations;
+use Safemood\Discountify\Concerns\HasDynamicFields;
 use Safemood\Discountify\Contracts\DiscountifyInterface;
 
 /**
@@ -19,10 +20,12 @@ use Safemood\Discountify\Contracts\DiscountifyInterface;
  * @method float total()
  * @method float totalWithDiscount(?float $globalDiscount = null)
  * @method self discount(float $globalDiscount)
+ * @method self setFields(array $fields)
  */
 class Discountify implements DiscountifyInterface
 {
     use HasCalculations;
+    use HasDynamicFields;
 
     protected array $items;
 

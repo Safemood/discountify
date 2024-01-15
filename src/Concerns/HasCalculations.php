@@ -65,7 +65,7 @@ trait HasCalculations
         return array_reduce(
             $this->items,
             function ($total, $item) {
-                return $total + ($item['quantity'] * $item['price']);
+                return $total + ($this->getField($item, 'quantity') * $this->getField($item, 'price'));
             },
             0
         );

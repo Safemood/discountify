@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Config;
 use Safemood\Discountify\ConditionManager;
 use Safemood\Discountify\Discountify;
 use Safemood\Discountify\Facades\Condition;
@@ -144,4 +145,51 @@ it('can use Discountify facade', function () {
     expect($totalWithDiscount)->toBe(floatval(170));
     expect($totalWithTaxes)->toBe(floatval(238));
     expect($taxRate)->toBe(floatval(38));
+});
+
+it('calculates total with discount using custom field names from configuration', function () {
+    Config::set('discountify.fields', [
+        'price' => 'amount',
+        'quantity' => 'qty',
+    ]);
+
+    $items = [
+        ['id' => 'item1', 'qty' => 2, 'amount' => 20],
+        ['id' => 'item2', 'qty' => 1, 'amount' => 20],
+    ];
+
+    $this->discountify->setItems($items);
+
+    $totalWithDiscount = $this->discountify->totalWithDiscount(50);
+
+    expect($totalWithDiscount)->toBe(floatval(30));
+});
+
+it('calculates total with discount using dynamically set custom field names', function () {
+    $items = [
+        ['id' => 'item1', 'qty' => 2, 'amount' => 20],
+        ['id' => 'item2', 'qty' => 1, 'amount' => 20],
+    ];
+
+    $this->discountify->setFields([
+        'price' => 'amount',
+        'quantity' => 'qty',
+    ])->setItems($items);
+
+    $totalWithDiscount = $this->discountify->totalWithDiscount(50);
+
+    expect($totalWithDiscount)->toBe(floatval(30));
+});
+
+it('calculates total with discount using dynamically set custom price field name', function () {
+    $items = [
+        ['id' => 'item1', 'quantity' => 2, 'amount' => 20],
+        ['id' => 'item2', 'quantity' => 1, 'amount' => 20],
+    ];
+
+    $this->discountify->setField('price', 'amount')->setItems($items);
+
+    $totalWithDiscount = $this->discountify->totalWithDiscount(50);
+
+    expect($totalWithDiscount)->toBe(floatval(30));
 });

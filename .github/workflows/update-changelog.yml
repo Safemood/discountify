@@ -21,8 +21,11 @@ jobs:
       - name: Update Changelog
         uses: stefanzweifel/changelog-updater-action@v1
         with:
-          latest-version: ${{ github.event.release.name }}
+          release-date: ${{ steps.release_date.outputs.date }}
           release-notes: ${{ github.event.release.body }}
+          latest-version: ${{ github.event.release.tag_name }}
+          compare-url-target-revision: ${{ github.event.release.target_commitish }}
+          parse-github-usernames: true
 
       - name: Commit updated CHANGELOG
         uses: stefanzweifel/git-auto-commit-action@v5

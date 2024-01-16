@@ -27,8 +27,11 @@ This is the contents of the published config file:
 return [
     'global_discount' => 0,
     'global_tax_rate' => 0,
+    'fields' => [
+        'quantity' => 'quantity',
+        'price' => 'price',
+    ],
 ];
-
 ```
 
 ## Define Conditions
@@ -104,7 +107,32 @@ $totalWithTaxes = Discountify::tax();
 $taxAmount = Discountify::taxAmount(19);
 
 ```
+### Dynamic Field Names
+```php
+// Set custom field names through configuration
+return [
+    'global_discount' => 0,
+    'global_tax_rate' => 0,
+    'fields' => [
+        'quantity' => 'qty',
+        'price' => 'amount',
+    ],
+];
 
+// Alternatively, set dynamic field names on the fly
+$items = [
+    ['id' => 'item1', 'qty' => 2, 'amount' => 20],
+    ['id' => 'item2', 'qty' => 1, 'amount' => 20],
+];
+
+$discountify->setFields([
+    'price' => 'amount',
+    'quantity' => 'qty',
+])->setItems($items);
+
+$totalWithDiscount = $discountify->totalWithDiscount(50);
+
+```
 ## Testing
 
 ```bash

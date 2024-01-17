@@ -92,18 +92,20 @@ it('can get subtotal', function () {
 it('can add conditions using ConditionManager', function () {
     $conditionManager = new ConditionManager();
     $conditionManager
-        ->define(fn (array $items) => count($items) > 2, 20)
+        ->define('more_than_2_products_10', fn (array $items) => count($items) > 2, 10)
         ->add([
             [
+                'slug' => 'more_than_3_products_15',
                 'condition' => fn ($items) => count($items) > 3,
                 'discount' => 15,
             ],
             [
+                'slug' => 'special_type_product_10',
                 'condition' => fn ($items) => in_array('special', array_column($items, 'type')),
                 'discount' => 10,
             ],
         ])
-        ->defineIf(true, 10);
+        ->defineIf('client_has_renewal_10', true, 10);
 
     $conditions = $conditionManager->getConditions();
 
@@ -112,18 +114,20 @@ it('can add conditions using ConditionManager', function () {
 
 it('can use Condition facade', function () {
 
-    Condition::define(fn (array $items) => count($items) > 2, 20)
+    Condition::define('more_than_2_products_10', fn (array $items) => count($items) > 2, 10)
         ->add([
             [
+                'slug' => 'more_than_3_products_15',
                 'condition' => fn ($items) => count($items) > 3,
                 'discount' => 15,
             ],
             [
+                'slug' => 'special_type_product_10',
                 'condition' => fn ($items) => in_array('special', array_column($items, 'type')),
                 'discount' => 10,
             ],
         ])
-        ->defineIf(true, 10);
+        ->defineIf('client_has_renewal_10', true, 10);
 
     $conditions = DiscountifyFacade::getConditions();
 
@@ -192,4 +196,14 @@ it('calculates total with discount using dynamically set custom price field name
     $totalWithDiscount = $this->discountify->totalWithDiscount(50);
 
     expect($totalWithDiscount)->toBe(floatval(30));
+});
+
+it('throws exception when slug is not provided in define method', function () {
+    expect(fn () => Condition::define('', fn ($items) => count($items) > 5, 10))
+        ->toThrow(Exception::class, 'Slug must be provided.');
+});
+
+it('throws exception when slug is not provided in defineIf method', function () {
+    expect(fn () => Condition::defineIf('', true, 10))
+        ->toThrow(Exception::class, 'Slug must be provided.');
 });

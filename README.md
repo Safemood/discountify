@@ -14,9 +14,9 @@ Discountify is a Laravel package designed for managing dynamic discounts with cu
   - [Set Items, Global Discount, and Tax Rate](#set-items-global-discount-and-tax-rate)
   - [Calculate Total Amounts](#calculate-total-amounts)
   - [Dynamic Field Names](#dynamic-field-names)
-  - [Named Discounts](#named-discounts)
-  - [Event Tracking](#event-tracking)
+  - [Skip Discounts Condistions](#skip-discounts-condistions)
   - [Class-Based Discounts](#class-based-discounts)
+  - [Event Tracking](#event-tracking)
 
 ## Installation
 
@@ -58,11 +58,12 @@ class AppServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        // If items are more than 2, apply a 20% discount.
-        Condition::define(fn (array $items) => count($items) > 2, 20)
+        // If items are more than 2, apply a 10% discount.
+        Condition::define('more_than_2_products_10', fn (array $items) => count($items) > 2, 10)
             // If the date is within a 7-day interval starting March 1, 2024, apply a 15% discount.
             ->add([
                 [
+                    'slug' => 'more_than_3_products_15',
                     'condition' => fn ($items) => now()->between(
                         Carbon::createFromDate(2024, 3, 1),
                         Carbon::createFromDate(2024, 3, 15)->addDays(7)
@@ -71,12 +72,13 @@ class AppServiceProvider extends ServiceProvider
                 ],
                 // If 'special' items are in the cart, apply a 10% discount.
                 [
+                    'slug' => 'special_type_product_10',
                     'condition' => fn ($items) => in_array('special', array_column($items, 'type')),
                     'discount' => 10,
                 ],
             ])
             // If the user has a renewal, apply a 10% discount.
-            ->defineIf(auth()->user()->hasRenewal(), 10);
+            ->defineIf('client_has_renewal_10', auth()->user()->hasRenewal(), 10);
     }
 }
 ```
@@ -145,15 +147,15 @@ $totalWithDiscount = $discountify->totalWithDiscount(50);
 
 ```
 
-### Named Discounts
+### Class-Based Discounts
+Explore complex logic with classes (working on it)
 
-Identify and manage with user-friendly names. (working on it)
+### Skip Discounts Condistions
+
+The ability to skip some conditions if needed. (working on it)
 
 ### Event Tracking
 Know when a discount is applied with customizable events. (working on it)
-
-### Class-Based Discounts
-Explore complex logic with classes (working on it)
 
 ## Testing
 

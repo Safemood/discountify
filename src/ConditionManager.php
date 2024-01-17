@@ -2,6 +2,7 @@
 
 namespace Safemood\Discountify;
 
+use InvalidArgumentException;
 use Safemood\Discountify\Contracts\ConditionManagerInterface;
 
 /**
@@ -16,7 +17,7 @@ class ConditionManager implements ConditionManagerInterface
      *
      * @return $this
      */
-    public function add(array $conditions)
+    public function add(array $conditions): self
     {
         $this->conditions = array_merge($this->conditions, $conditions);
 
@@ -28,9 +29,13 @@ class ConditionManager implements ConditionManagerInterface
      *
      * @return $this
      */
-    public function define(callable $condition, float $discountPercentage)
+    public function define(string $slug, callable $condition, float $discountPercentage): self
     {
-        $this->conditions[] = ['condition' => $condition, 'discount' => $discountPercentage];
+        if (empty($slug)) {
+            throw new InvalidArgumentException('Slug must be provided.');
+        }
+
+        $this->conditions[] = compact('slug', 'condition', 'discountPercentage');
 
         return $this;
     }
@@ -40,11 +45,9 @@ class ConditionManager implements ConditionManagerInterface
      *
      * @return $this
      */
-    public function defineIf(bool $condition, float $discountPercentage)
+    public function defineIf(string $slug, bool $isAcceptable, float $discountPercentage): self
     {
-        $this->conditions[] = ['condition' => $condition, 'discount' => $discountPercentage];
-
-        return $this;
+        return $this->define($slug, fn () => $isAcceptable, $discountPercentage);
     }
 
     /**

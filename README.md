@@ -14,8 +14,8 @@ Discountify is a Laravel package designed for managing dynamic discounts with cu
   - [Set Items, Global Discount, and Tax Rate](#set-items-global-discount-and-tax-rate)
   - [Calculate Total Amounts](#calculate-total-amounts)
   - [Dynamic Field Names](#dynamic-field-names)
-  - [Skip Discounts Condistions](#skip-discounts-condistions)
   - [Class-Based Discounts](#class-based-discounts)
+  - [Skip Discounts Condistions](#skip-discounts-condistions)
   - [Event Tracking](#event-tracking)
 
 ## Installation

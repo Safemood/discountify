@@ -5,8 +5,8 @@ All notable changes to `Discountify` will be documented in this file.
 ## 1.0.0 - 2024-01-17
 
 ## What's Changed
-* added dynamic fields by @Safemood in https://github.com/Safemood/discountify/pull/1
-* feat: Add slug parameter to define and defineIf methods by @Safemood in https://github.com/Safemood/discountify/pull/2
+* Added dynamic fields by @Safemood in https://github.com/Safemood/discountify/pull/1
+* Added slug parameter to define and defineIf methods by @Safemood in https://github.com/Safemood/discountify/pull/2
 
 ## Breaking Changes
 - The `define` and `defineIf` methods now require a `slug` parameter.

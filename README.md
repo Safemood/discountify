@@ -150,7 +150,7 @@ $totalWithDiscount = $discountify->totalWithDiscount(50);
 ### Class-Based Discounts
 Explore complex logic with classes (working on it)
 
-### Skip Discounts Condistions
+### Skip Discounts Conditions
 
 The ability to skip some conditions if needed. (working on it)
 

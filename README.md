@@ -5,7 +5,7 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/safemood/discountify/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/safemood/discountify/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/safemood/discountify.svg?style=flat-square)](https://packagist.org/packages/safemood/discountify)
 
-Discountify is a Laravel package designed for managing dynamic discounts with custom conditions. It allows you to create flexible and powerful discounting strategies, easily defining conditions and applying percentage-based discounts to enhance your e-commerce application
+Discountify is a Laravel package designed for managing dynamic discounts with custom conditions. It allows you to create flexible and powerful discounting strategies, easily defining conditions and applying percentage-based discounts to enhance your e-commerce application.
 
 
 - [Installation](#installation)
@@ -15,7 +15,7 @@ Discountify is a Laravel package designed for managing dynamic discounts with cu
   - [Calculate Total Amounts](#calculate-total-amounts)
   - [Dynamic Field Names](#dynamic-field-names)
   - [Class-Based Discounts](#class-based-discounts)
-  - [Skip Discounts Condistions](#skip-discounts-condistions)
+  - [Skip Discounts conditions](#skip-discounts-conditions)
   - [Event Tracking](#event-tracking)
 
 ## Installation

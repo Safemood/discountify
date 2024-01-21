@@ -2,6 +2,14 @@
 
 All notable changes to `Discountify` will be documented in this file.
 
+## 1.2.0 - 2024-01-21
+
+## What's Changed
+* Added the ability to skip conditions by @Safemood in https://github.com/Safemood/discountify/pull/4
+
+
+**Full Changelog**: https://github.com/Safemood/discountify/compare/1.1.0...1.2.0
+
 ## 1.1.0 - 2024-01-21
 
 ## What's Changed

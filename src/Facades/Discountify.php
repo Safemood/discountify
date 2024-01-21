@@ -15,7 +15,6 @@ use Safemood\Discountify\ConditionManager;
  * @method static float getGlobalTaxRate()
  * @method static array getItems()
  * @method static float subtotal()
- * @method static float tax()
  * @method static float total()
  * @method static float totalWithDiscount(?float $globalDiscount = null)
  * @method static float tax(?float $globalTaxRate = null)

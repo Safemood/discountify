@@ -190,7 +190,7 @@ class Discountify implements DiscountifyInterface
     /**
      * Calculate the total with applied discount.
      */
-    public function totalWithDiscount(?float $globalDiscount = null): float
+    public function totalWithDiscount(?int $globalDiscount = null): float
     {
         return $this->calculateDiscount($globalDiscount);
     }

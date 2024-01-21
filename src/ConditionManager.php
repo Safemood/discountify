@@ -2,8 +2,10 @@
 
 namespace Safemood\Discountify;
 
+use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Safemood\Discountify\Contracts\ConditionManagerInterface;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Class ConditionManager
@@ -29,13 +31,13 @@ class ConditionManager implements ConditionManagerInterface
      *
      * @return $this
      */
-    public function define(string $slug, callable $condition, float $discountPercentage): self
+    public function define(string $slug, callable $condition, float $discount): self
     {
         if (empty($slug)) {
             throw new InvalidArgumentException('Slug must be provided.');
         }
 
-        $this->conditions[] = compact('slug', 'condition', 'discountPercentage');
+        $this->conditions[] = compact('slug', 'condition', 'discount');
 
         return $this;
     }
@@ -45,9 +47,9 @@ class ConditionManager implements ConditionManagerInterface
      *
      * @return $this
      */
-    public function defineIf(string $slug, bool $isAcceptable, float $discountPercentage): self
+    public function defineIf(string $slug, bool $isAcceptable, float $discount): self
     {
-        return $this->define($slug, fn () => $isAcceptable, $discountPercentage);
+        return $this->define($slug, fn () => $isAcceptable, $discount);
     }
 
     /**
@@ -56,5 +58,54 @@ class ConditionManager implements ConditionManagerInterface
     public function getConditions(): array
     {
         return $this->conditions;
+    }
+
+    /**
+     * Discover condition classes in a given namespace and path.
+     *
+     * @param  string  $namespace
+     * @param  string|null  $path
+     * @return $this
+     */
+    /**
+     * Discover condition classes in a given namespace and path.
+     *
+     * @param  string  $namespace
+     * @param  string|null  $path
+     * @return $this
+     */
+    public function discover($namespace = 'App\\Conditions', $path = null): self
+    {
+        $namespace = str()->finish($namespace, '\\');
+
+        $directory = $path ?? base_path('app/Conditions');
+
+        if (! is_dir($directory)) {
+            return $this;
+        }
+
+        Collection::make((new Finder)
+            ->files()
+            ->name('*.php')
+            ->depth(0)
+            ->in($directory))
+            ->each(function ($file) use ($namespace) {
+                $class = $namespace.$file->getBasename('.php');
+                $conditionInstance = new $class();
+
+                if (method_exists($conditionInstance, '__invoke')) {
+                    $slug = property_exists($conditionInstance, 'slug') ?
+                        $conditionInstance->slug : strtolower(str_replace($namespace, '', $class));
+
+                    $conditionCallback = fn ($items) => $conditionInstance->__invoke($items);
+
+                    $discount = property_exists($conditionInstance, 'discount') ?
+                        $conditionInstance->discount : 0;
+
+                    $this->define($slug, $conditionCallback, $discount);
+                }
+            });
+
+        return $this;
     }
 }

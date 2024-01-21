@@ -31,7 +31,7 @@ trait HasCalculations
     /**
      * Calculate total with the discount.
      */
-    public function calculateDiscount(?float $globalDiscount = null): float
+    public function calculateDiscount(?int $globalDiscount = null): float
     {
         $this->globalDiscount = $globalDiscount ?? $this->globalDiscount;
 

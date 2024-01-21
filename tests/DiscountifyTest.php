@@ -6,6 +6,8 @@ use Safemood\Discountify\Discountify;
 use Safemood\Discountify\Facades\Condition;
 use Safemood\Discountify\Facades\Discountify as DiscountifyFacade;
 
+use function Orchestra\Testbench\workbench_path;
+
 beforeEach(function () {
     $this->items = [
         ['id' => '1', 'quantity' => 2, 'price' => 50],
@@ -206,4 +208,54 @@ it('throws exception when slug is not provided in define method', function () {
 it('throws exception when slug is not provided in defineIf method', function () {
     expect(fn () => Condition::defineIf('', true, 10))
         ->toThrow(Exception::class, 'Slug must be provided.');
+});
+
+it('can auto register condition classes', function () {
+
+    Condition::discover(
+        'Workbench\\App\\Conditions',
+        workbench_path('app/Conditions')
+    );
+
+    $definedConditions = Condition::getConditions();
+
+    expect($definedConditions)
+        ->toBeArray()
+        ->toHaveCount(2)
+        ->each(function ($item) {
+            $item->toHaveKeys([
+                'slug',
+                'condition',
+                'discount',
+            ]);
+            $item->slug->toBeString();
+            $item->condition->toBeInstanceOf(Closure::class);
+            $item->discount->toBeFloat();
+        });
+});
+
+it('can work correctly with class-based conditions', function () {
+
+    $items = [
+        ['id' => '1', 'quantity' => 2, 'price' => 50],
+        ['id' => '2', 'quantity' => 1, 'price' => 100, 'type' => 'special'],
+    ];
+
+    Condition::discover(
+        'Workbench\\App\\Conditions',
+        workbench_path('app/Conditions')
+    );
+
+    DiscountifyFacade::setItems($items)
+        ->setGlobalTaxRate(19);
+
+    $total = DiscountifyFacade::total();
+    $totalWithDiscount = DiscountifyFacade::totalWithDiscount();
+    $totalWithTaxes = DiscountifyFacade::tax();
+    $taxRate = DiscountifyFacade::taxAmout(19);
+
+    expect($total)->toBe(floatval(138));
+    expect($totalWithDiscount)->toBe(floatval(100));
+    expect($totalWithTaxes)->toBe(floatval(238));
+    expect($taxRate)->toBe(floatval(38));
 });

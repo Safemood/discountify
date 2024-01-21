@@ -259,3 +259,40 @@ it('can work correctly with class-based conditions', function () {
     expect($totalWithTaxes)->toBe(floatval(238));
     expect($taxRate)->toBe(floatval(38));
 });
+
+test('it skips conditions marked with "skip"', function () {
+
+    $conditions = [
+        ['slug' => 'condition_1', 'condition' => fn () => true, 'discount' => 10],
+        ['slug' => 'condition_2', 'condition' => fn () => false, 'discount' => 20, 'skip' => true],
+        ['slug' => 'condition_3', 'condition' => fn () => true, 'discount' => 30, 'skip' => false],
+    ];
+
+    Condition::add($conditions);
+
+    $finalConditions = Condition::getConditions();
+
+    $this->assertCount(2, $finalConditions);
+});
+
+test('it throws an exception for conditions without "slug"', function () {
+    $this->expectException(InvalidArgumentException::class);
+
+    $conditions = [
+        ['condition' => fn () => true, 'discount' => 10],
+    ];
+
+    Condition::add($conditions);
+});
+
+test('it skips class-based conditions marked with "skip"', function () {
+
+    Condition::discover(
+        'Workbench\\App\\Conditions',
+        workbench_path('app/Conditions')
+    );
+
+    $conditions = Condition::getConditions();
+
+    expect($conditions)->toHaveCount(2);
+});

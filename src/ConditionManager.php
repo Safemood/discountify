@@ -2,6 +2,7 @@
 
 namespace Safemood\Discountify;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Safemood\Discountify\Contracts\ConditionManagerInterface;
@@ -21,7 +22,19 @@ class ConditionManager implements ConditionManagerInterface
      */
     public function add(array $conditions): self
     {
-        $this->conditions = array_merge($this->conditions, $conditions);
+        $this->conditions = array_merge(
+            $this->conditions,
+            collect($conditions)
+                ->reject(function ($condition) {
+                    if (empty($condition['slug'])) {
+                        throw new InvalidArgumentException('Slug must be provided.');
+                    }
+
+                    return isset($condition['skip']) && $condition['skip'];
+                })
+                ->map(fn ($condition) => Arr::only($condition, ['slug', 'condition', 'discount']))
+                ->toArray()
+        );
 
         return $this;
     }
@@ -31,13 +44,14 @@ class ConditionManager implements ConditionManagerInterface
      *
      * @return $this
      */
-    public function define(string $slug, callable $condition, float $discount): self
+    public function define(string $slug, callable $condition, float $discount, bool $skip = false): self
     {
         if (empty($slug)) {
             throw new InvalidArgumentException('Slug must be provided.');
         }
-
-        $this->conditions[] = compact('slug', 'condition', 'discount');
+        if (! $skip) {
+            $this->conditions[] = compact('slug', 'condition', 'discount');
+        }
 
         return $this;
     }
@@ -67,13 +81,6 @@ class ConditionManager implements ConditionManagerInterface
      * @param  string|null  $path
      * @return $this
      */
-    /**
-     * Discover condition classes in a given namespace and path.
-     *
-     * @param  string  $namespace
-     * @param  string|null  $path
-     * @return $this
-     */
     public function discover($namespace = 'App\\Conditions', $path = null): self
     {
         $namespace = str()->finish($namespace, '\\');
@@ -92,8 +99,9 @@ class ConditionManager implements ConditionManagerInterface
             ->each(function ($file) use ($namespace) {
                 $class = $namespace.$file->getBasename('.php');
                 $conditionInstance = new $class();
+                $skipping = property_exists($conditionInstance, 'skip') && $conditionInstance->skip;
 
-                if (method_exists($conditionInstance, '__invoke')) {
+                if (method_exists($conditionInstance, '__invoke') && ! $skipping) {
                     $slug = property_exists($conditionInstance, 'slug') ?
                         $conditionInstance->slug : strtolower(str_replace($namespace, '', $class));
 

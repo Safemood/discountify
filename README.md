@@ -178,7 +178,41 @@ class MoreThan1ProductsCondition implements ConditionInterface
 
 ### Skip Discounts Conditions
 
-The ability to skip some conditions if needed. (working on it)
+This will allows you to exclude specific conditions based on the "skip" field.
+
+Using ConditionManager::define:
+
+```php
+Condition::define('condition2', fn ($items) => false, 20, true);  // Will be skipped
+```
+
+- Using Condition::add:
+```php
+Condition::add([
+    ['slug' => 'condition1', 'condition' => fn ($items) => true, 'discount' => 10, 'skip' => false],  // Won't be skipped
+    ['slug' => 'condition2', 'condition' => fn ($items) => false, 'discount' => 20, 'skip' => true], // Will be skipped
+    ['slug' => 'condition3', 'condition' => fn ($items) => true, 'discount' => 30], // Will not be skipped (default skip is false)
+]);
+```
+- Using  Class-Based Conditions:
+
+```php
+namespace App\Conditions;
+
+use Safemood\Discountify\Contracts\ConditionInterface;
+
+class ExampleCondition implements ConditionInterface
+{
+    public bool $skip = true; // Set to true to skip the condition
+
+    public string $slug = 'skipped_condition';
+
+    public function __invoke(array $items): bool
+    {
+         return count($items) > 5;
+    }
+}
+```
 
 ### Event Tracking
 Know when a discount is applied with customizable events. (working on it)

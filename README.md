@@ -180,7 +180,7 @@ class MoreThan1ProductsCondition implements ConditionInterface
 
 This will allows you to exclude specific conditions based on the "skip" field.
 
-Using ConditionManager::define:
+Using Condition::define:
 
 ```php
 Condition::define('condition2', fn ($items) => false, 20, true);  // Will be skipped

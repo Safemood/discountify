@@ -31,7 +31,6 @@ class ConditionManager implements ConditionManagerInterface
                         throw new InvalidArgumentException('Slug must be provided.');
                     }
 
-
                     $this->checkDuplicateSlug($condition['slug']);
 
                     return isset($condition['skip']) && $condition['skip'];
@@ -56,7 +55,7 @@ class ConditionManager implements ConditionManagerInterface
 
         $this->checkDuplicateSlug($slug);
 
-        if (!$skip) {
+        if (! $skip) {
             $this->conditions[] = compact('slug', 'condition', 'discount');
         }
 
@@ -94,7 +93,7 @@ class ConditionManager implements ConditionManagerInterface
 
         $directory = $path ?? base_path('app/Conditions');
 
-        if (!is_dir($directory)) {
+        if (! is_dir($directory)) {
             return $this;
         }
 
@@ -104,11 +103,11 @@ class ConditionManager implements ConditionManagerInterface
             ->depth(0)
             ->in($directory))
             ->each(function ($file) use ($namespace) {
-                $class = $namespace . $file->getBasename('.php');
+                $class = $namespace.$file->getBasename('.php');
                 $conditionInstance = new $class();
                 $skipping = property_exists($conditionInstance, 'skip') && $conditionInstance->skip;
 
-                if (method_exists($conditionInstance, '__invoke') && !$skipping) {
+                if (method_exists($conditionInstance, '__invoke') && ! $skipping) {
                     $slug = property_exists($conditionInstance, 'slug') ?
                         $conditionInstance->slug : strtolower(str_replace($namespace, '', $class));
 
@@ -127,7 +126,6 @@ class ConditionManager implements ConditionManagerInterface
     /**
      * Check if a slug is already defined and throw an exception if it is.
      *
-     * @param string $slug
      * @throws \InvalidArgumentException
      */
     private function checkDuplicateSlug(string $slug): void

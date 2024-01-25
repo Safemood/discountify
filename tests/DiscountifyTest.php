@@ -300,7 +300,6 @@ test('it skips class-based conditions marked with "skip"', function () {
 
 it('ensures condition slugs are unique', function () {
 
-
     Condition::define('unique_condition', fn () => true, 10);
 
     $this->expectException(DuplicateSlugException::class);

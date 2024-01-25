@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Config;
 use Safemood\Discountify\ConditionManager;
 use Safemood\Discountify\Discountify;
+use Safemood\Discountify\Exceptions\DuplicateSlugException;
 use Safemood\Discountify\Facades\Condition;
 use Safemood\Discountify\Facades\Discountify as DiscountifyFacade;
 
@@ -295,4 +296,14 @@ test('it skips class-based conditions marked with "skip"', function () {
     $conditions = Condition::getConditions();
 
     expect($conditions)->toHaveCount(2);
+});
+
+it('ensures condition slugs are unique', function () {
+
+
+    Condition::define('unique_condition', fn () => true, 10);
+
+    $this->expectException(DuplicateSlugException::class);
+
+    Condition::define('unique_condition', fn () => true, 15);
 });

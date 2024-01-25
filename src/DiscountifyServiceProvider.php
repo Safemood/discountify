@@ -3,7 +3,7 @@
 namespace Safemood\Discountify;
 
 use Illuminate\Contracts\Foundation\Application;
-use Safemood\Discountify\Commands\DiscountifyCommand;
+use Safemood\Discountify\Commands\ConditionMakeCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -14,7 +14,7 @@ class DiscountifyServiceProvider extends PackageServiceProvider
         $package
             ->name('discountify')
             ->hasConfigFile()
-            ->hasCommand(DiscountifyCommand::class);
+            ->hasCommand(ConditionMakeCommand::class);
     }
 
     public function packageRegistered()

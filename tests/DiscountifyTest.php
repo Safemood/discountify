@@ -1,9 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
 use Safemood\Discountify\ConditionManager;
 use Safemood\Discountify\Discountify;
+use Safemood\Discountify\Events\DiscountAppliedEvent;
 use Safemood\Discountify\Exceptions\DuplicateSlugException;
 use Safemood\Discountify\Facades\Condition;
 use Safemood\Discountify\Facades\Discountify as DiscountifyFacade;
@@ -331,4 +333,32 @@ it('can create a new condition class', function () {
     File::delete($filePath);
 
     $this->assertFalse(File::exists($filePath));
+});
+
+it('fires the DiscountAppliedEvent when conditions are met and event firing is enabled', function () {
+    Event::fake();
+
+    Config::set('discountify.fire_events', true);
+
+    Condition::define('test_condition', fn () => true, 10);
+
+    DiscountifyFacade::setItems($this->items);
+
+    DiscountifyFacade::total();
+
+    Event::assertDispatched(DiscountAppliedEvent::class);
+});
+
+it('does not fire the DiscountAppliedEvent when event firing is disabled', function () {
+    Event::fake();
+
+    Config::set('discountify.fire_events', false);
+
+    Condition::define('test_condition', fn () => true, 10);
+
+    DiscountifyFacade::setItems($this->items);
+
+    DiscountifyFacade::total();
+
+    Event::assertNotDispatched(DiscountAppliedEvent::class);
 });

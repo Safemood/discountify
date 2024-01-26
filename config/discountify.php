@@ -9,4 +9,5 @@ return [
     ],
     'global_discount' => 0,
     'global_tax_rate' => 0,
+    'fire_events' => env('DISCOUNTIFY_FIRE_EVENTS', true),
 ];

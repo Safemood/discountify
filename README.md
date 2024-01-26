@@ -17,6 +17,7 @@ Discountify is a Laravel package designed for managing dynamic discounts with cu
   - [Class-Based Discounts](#class-based-discounts)
   - [Skip Discounts conditions](#skip-discounts-conditions)
   - [Event Tracking](#event-tracking)
+  - [Coupon Based Discounts](#coupon-based-discounts)
 
 ## Installation
 
@@ -259,6 +260,10 @@ public function boot(): void
 }
 ```
 Check the [Laravel Events documentation](https://laravel.com/docs/10.x/events#registering-events-and-listeners) for more details.
+
+### Coupon Based Discounts
+
+Coupon based discounts to easily apply and calculate discounts on a given coupon code (working on it !)
 
 ## Testing
 

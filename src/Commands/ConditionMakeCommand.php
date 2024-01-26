@@ -43,6 +43,17 @@ class ConditionMakeCommand extends GeneratorCommand
     }
 
     /**
+     * Get the default namespace for the class.
+     *
+     * @param  string  $rootNamespace
+     * @return string
+     */
+    protected function getDefaultNamespace($rootNamespace)
+    {
+        return config('discountify.condition_namespace', "{$rootNamespace}\\Condition");
+    }
+
+    /**
      * Get the destination class path.
      *
      * @param  string  $name

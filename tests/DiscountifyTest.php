@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Safemood\Discountify\ConditionManager;
@@ -312,7 +311,7 @@ it('ensures condition slugs are unique', function () {
 
 it('can create a new condition class', function () {
 
-    $testConditionsPath = __DIR__ . '/../workbench/app/Conditions';
+    $testConditionsPath = __DIR__.'/../workbench/app/Conditions';
 
     config(['discountify.condition_namespace' => 'Workbench\\App\\Conditions']);
     config(['discountify.condition_path' => $testConditionsPath]);
@@ -324,7 +323,7 @@ it('can create a new condition class', function () {
     artisan('discountify:condition', [
         'name' => $class,
         '--slug' => 'CustomSlug',
-        '--discount' => 15
+        '--discount' => 15,
     ]);
 
     $this->assertTrue(File::exists($filePath));

@@ -2,6 +2,17 @@
 
 All notable changes to `Discountify` will be documented in this file.
 
+## 1.3.0 - 2024-01-26
+
+## What's Changed
+* Fix duplicates conditions by @Safemood in https://github.com/Safemood/discountify/pull/5
+* Generate conditions classes command by @Safemood in https://github.com/Safemood/discountify/pull/6
+* Fix class condition not found by @Safemood in https://github.com/Safemood/discountify/pull/7
+* Events tracking by @Safemood in https://github.com/Safemood/discountify/pull/8
+
+
+**Full Changelog**: https://github.com/Safemood/discountify/compare/1.2.0...1.3.0
+
 ## 1.2.0 - 2024-01-21
 
 ## What's Changed

@@ -199,9 +199,9 @@ Condition::add([
 To create a class-based condition using the `discountify:condition` artisan command, you can run the following command:
 Options:
 
---discount (-d): Specifies the discount value for the condition. Default value is 0.
---force (-f): Creates the class even if the condition class already exists.
---slug (-s): Specifies the slug for the condition. If not provided, the name of the condition will be used as the slug.
+--discount (-d): Specifies the discount value for the condition. Default value is 0.<br/>
+--slug (-s): Specifies the slug for the condition. If not provided, the name of the condition will be used as the slug.<br/>
+--force (-f): Creates the class even if the condition class already exists. <br/>
 
 ```php
 php artisan discountify:condition OrderTotalDiscount 
@@ -234,7 +234,31 @@ class OrderTotalDiscount implements ConditionInterface
 ```
 
 ### Event Tracking
-Know when a discount is applied with customizable events. (working on it)
+
+You can listen for the `DiscountAppliedEvent` using Laravel's Event system. 
+
+
+Ensure the following configuration in the discountify.php file:
+```php
+// config/discountify.php
+'fire_events' => env('DISCOUNTIFY_FIRE_EVENTS', true) // Toggle event dispatching
+```
+ 
+```php
+// app/Providers/EventServiceProvider.php
+
+use Illuminate\Support\Facades\Event;
+use Safemood\Discountify\Events\DiscountAppliedEvent;
+
+public function boot(): void
+{
+    Event::listen(function (DiscountAppliedEvent $event) {
+        // Your event handling logic here
+        // dd($event);
+    });
+}
+```
+Check the [Laravel Events documentation](https://laravel.com/docs/10.x/events#registering-events-and-listeners) for more details.
 
 ## Testing
 

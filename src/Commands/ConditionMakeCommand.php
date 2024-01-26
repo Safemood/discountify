@@ -3,6 +3,7 @@
 namespace Safemood\Discountify\Commands;
 
 use Illuminate\Console\GeneratorCommand;
+use Illuminate\Support\Facades\Config;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -39,7 +40,7 @@ class ConditionMakeCommand extends GeneratorCommand
     {
         return file_exists($customPath = $this->laravel->basePath('stubs/condition.stub'))
             ? $customPath
-            : __DIR__.'/../../stubs/condition.stub';
+            : __DIR__ . '/../../stubs/condition.stub';
     }
 
     /**
@@ -50,7 +51,7 @@ class ConditionMakeCommand extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return config('discountify.condition_namespace', "{$rootNamespace}\\Condition");
+        return "{$rootNamespace}\\Conditions";
     }
 
     /**
@@ -64,7 +65,7 @@ class ConditionMakeCommand extends GeneratorCommand
 
         $customPath = config('discountify.condition_path');
 
-        return $customPath.'/'.class_basename($name).'.php';
+        return $customPath . '/' . class_basename($name) . '.php';
     }
 
     /**

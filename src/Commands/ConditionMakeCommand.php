@@ -42,16 +42,22 @@ class ConditionMakeCommand extends GeneratorCommand
             : __DIR__ . '/../../stubs/condition.stub';
     }
 
+
     /**
-     * Get the default namespace for the class.
+     * Get the destination class path.
      *
-     * @param  string  $rootNamespace
+     * @param  string  $name
      * @return string
      */
-    protected function getDefaultNamespace($rootNamespace)
+    protected function getPath($name)
     {
-        return "{$rootNamespace}\\Conditions";
+
+        $customPath = config('discountify.condition_path');
+
+        return $customPath . '/' . class_basename($name) . '.php';
     }
+
+
 
     /**
      * Get the console command arguments.
@@ -79,11 +85,17 @@ class ConditionMakeCommand extends GeneratorCommand
     {
         $stub = parent::buildClass($name);
 
+        return $this->customizeStub($stub);
+    }
+
+
+    protected function customizeStub($stub)
+    {
         $slug = $this->option('slug') ?? $this->getNameInput();
 
         return str_replace(['{{ slug }}', '{{ discount }}'], [
             str()->snake($slug, '_'),
-            $this->option('discount')
+            $this->option('discount'),
         ], $stub);
     }
 }

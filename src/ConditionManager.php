@@ -104,19 +104,22 @@ class ConditionManager implements ConditionManagerInterface
             ->in($directory))
             ->each(function ($file) use ($namespace) {
                 $class = $namespace.$file->getBasename('.php');
-                $conditionInstance = new $class();
-                $skipping = property_exists($conditionInstance, 'skip') && $conditionInstance->skip;
 
-                if (method_exists($conditionInstance, '__invoke') && ! $skipping) {
-                    $slug = property_exists($conditionInstance, 'slug') ?
-                        $conditionInstance->slug : strtolower(str_replace($namespace, '', $class));
+                if (class_exists($class)) {
+                    $conditionInstance = new $class();
+                    $skipping = property_exists($conditionInstance, 'skip') && $conditionInstance->skip;
 
-                    $conditionCallback = fn ($items) => $conditionInstance->__invoke($items);
+                    if (method_exists($conditionInstance, '__invoke') && ! $skipping) {
+                        $slug = property_exists($conditionInstance, 'slug') ?
+                            $conditionInstance->slug : strtolower(str_replace($namespace, '', $class));
 
-                    $discount = property_exists($conditionInstance, 'discount') ?
-                        $conditionInstance->discount : 0;
+                        $conditionCallback = fn ($items) => $conditionInstance->__invoke($items);
 
-                    $this->define($slug, $conditionCallback, $discount);
+                        $discount = property_exists($conditionInstance, 'discount') ?
+                            $conditionInstance->discount : 0;
+
+                        $this->define($slug, $conditionCallback, $discount);
+                    }
                 }
             });
 

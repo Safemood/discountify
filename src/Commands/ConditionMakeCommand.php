@@ -43,6 +43,17 @@ class ConditionMakeCommand extends GeneratorCommand
     }
 
     /**
+     * Get the default namespace for the class.
+     *
+     * @param  string  $rootNamespace
+     * @return string
+     */
+    protected function getDefaultNamespace($rootNamespace)
+    {
+        return "{$rootNamespace}\\Conditions";
+    }
+
+    /**
      * Get the destination class path.
      *
      * @param  string  $name

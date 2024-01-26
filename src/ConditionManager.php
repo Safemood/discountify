@@ -55,7 +55,7 @@ class ConditionManager implements ConditionManagerInterface
 
         $this->checkDuplicateSlug($slug);
 
-        if (! $skip) {
+        if (!$skip) {
             $this->conditions[] = compact('slug', 'condition', 'discount');
         }
 
@@ -93,7 +93,7 @@ class ConditionManager implements ConditionManagerInterface
 
         $directory = $path ?? base_path('app/Conditions');
 
-        if (! is_dir($directory)) {
+        if (!is_dir($directory)) {
             return $this;
         }
 
@@ -103,22 +103,26 @@ class ConditionManager implements ConditionManagerInterface
             ->depth(0)
             ->in($directory))
             ->each(function ($file) use ($namespace) {
-                $class = $namespace.$file->getBasename('.php');
-                $conditionInstance = new $class();
-                $skipping = property_exists($conditionInstance, 'skip') && $conditionInstance->skip;
+                $class = $namespace . $file->getBasename('.php');
 
-                if (method_exists($conditionInstance, '__invoke') && ! $skipping) {
-                    $slug = property_exists($conditionInstance, 'slug') ?
-                        $conditionInstance->slug : strtolower(str_replace($namespace, '', $class));
+                if (class_exists($class) && is_a($class, $namespace, true)) {
+                    $conditionInstance = new $class();
+                    $skipping = property_exists($conditionInstance, 'skip') && $conditionInstance->skip;
 
-                    $conditionCallback = fn ($items) => $conditionInstance->__invoke($items);
+                    if (method_exists($conditionInstance, '__invoke') && !$skipping) {
+                        $slug = property_exists($conditionInstance, 'slug') ?
+                            $conditionInstance->slug : strtolower(str_replace($namespace, '', $class));
 
-                    $discount = property_exists($conditionInstance, 'discount') ?
-                        $conditionInstance->discount : 0;
+                        $conditionCallback = fn ($items) => $conditionInstance->__invoke($items);
 
-                    $this->define($slug, $conditionCallback, $discount);
+                        $discount = property_exists($conditionInstance, 'discount') ?
+                            $conditionInstance->discount : 0;
+
+                        $this->define($slug, $conditionCallback, $discount);
+                    }
                 }
             });
+
 
         return $this;
     }

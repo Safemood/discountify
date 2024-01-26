@@ -1,0 +1,17 @@
+<?php
+
+namespace {{ namespace }};
+
+use Safemood\Discountify\Contracts\ConditionInterface;
+
+class {{ class }} implements ConditionInterface
+{
+    public string $slug = '{{ slug }}';
+
+    public int $discount = {{ discount }};
+
+    public function __invoke(array $items): bool
+    {
+        return false;
+    }
+}

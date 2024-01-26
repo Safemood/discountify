@@ -196,16 +196,35 @@ Condition::add([
 ```
 - Using  Class-Based Conditions:
 
+To create a class-based condition using the `discountify:condition` artisan command, you can run the following command:
+Options:
+
+--discount (-d): Specifies the discount value for the condition. Default value is 0.
+--force (-f): Creates the class even if the condition class already exists.
+--slug (-s): Specifies the slug for the condition. If not provided, the name of the condition will be used as the slug.
+
 ```php
+php artisan discountify:condition OrderTotalDiscount 
+```
+
+```php
+php artisan discountify:condition OrderTotalDiscount --discount=10 --slug OrderTotal
+```
+
+```php
+<?php
+
 namespace App\Conditions;
 
 use Safemood\Discountify\Contracts\ConditionInterface;
 
-class ExampleCondition implements ConditionInterface
+class OrderTotalDiscount implements ConditionInterface
 {
     public bool $skip = true; // Set to true to skip the condition
 
-    public string $slug = 'skipped_condition';
+    public string $slug = 'order_total';
+
+    public int $discount = 10;
 
     public function __invoke(array $items): bool
     {

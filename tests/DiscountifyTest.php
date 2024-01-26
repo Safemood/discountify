@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\File;
 use Safemood\Discountify\ConditionManager;
 use Safemood\Discountify\Discountify;
 use Safemood\Discountify\Exceptions\DuplicateSlugException;
@@ -8,6 +9,7 @@ use Safemood\Discountify\Facades\Condition;
 use Safemood\Discountify\Facades\Discountify as DiscountifyFacade;
 
 use function Orchestra\Testbench\workbench_path;
+use function Pest\Laravel\artisan;
 
 beforeEach(function () {
     $this->items = [
@@ -305,4 +307,28 @@ it('ensures condition slugs are unique', function () {
     $this->expectException(DuplicateSlugException::class);
 
     Condition::define('unique_condition', fn () => true, 15);
+});
+
+it('can create a new condition class', function () {
+
+    $testConditionsPath = __DIR__.'/../workbench/app/Conditions';
+
+    config(['discountify.condition_namespace' => 'Workbench\\App\\Conditions']);
+    config(['discountify.condition_path' => $testConditionsPath]);
+
+    $class = 'NewConditionClass';
+
+    $filePath = "$testConditionsPath/{$class}.php";
+
+    artisan('discountify:condition', [
+        'name' => $class,
+        '--slug' => 'CustomSlug',
+        '--discount' => 15,
+    ]);
+
+    $this->assertTrue(File::exists($filePath));
+
+    File::delete($filePath);
+
+    $this->assertFalse(File::exists($filePath));
 });

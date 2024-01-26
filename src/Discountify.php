@@ -5,6 +5,7 @@ namespace Safemood\Discountify;
 use Safemood\Discountify\Concerns\HasCalculations;
 use Safemood\Discountify\Concerns\HasDynamicFields;
 use Safemood\Discountify\Contracts\DiscountifyInterface;
+use Safemood\Discountify\Events\DiscountAppliedEvent;
 
 /**
  * Class Discountify
@@ -65,6 +66,10 @@ class Discountify implements DiscountifyInterface
             $this->conditionManager->getConditions(),
             function ($discount, $condition) {
                 $result = is_callable($condition['condition']) ? $condition['condition']($this->items) : $condition['condition'];
+
+                if (config('discountify.fire_events')) {
+                    event(new DiscountAppliedEvent($condition['slug'], $condition['discount'], $condition['condition']));
+                }
 
                 return $discount + match (true) {
                     $result === true => $this->calculateSubtotal() * ($condition['discount'] / 100),

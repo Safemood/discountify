@@ -259,6 +259,7 @@ public function boot(): void
 {
     Event::listen(function (DiscountAppliedEvent $event) {
         // Your event handling logic here
+        // Ex : Mail to costumer
         // dd($event);
     });
 }

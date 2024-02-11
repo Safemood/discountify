@@ -36,9 +36,33 @@ trait HasCalculations
         $this->globalDiscount = $globalDiscount ?? $this->globalDiscount;
 
         $total = $this->calculateTotal();
-        $discount = $this->calculateGlobalDiscount() + $this->evaluateConditions();
+        $globalDiscount = $this->calculateGlobalDiscount();
+        $couponDiscount = ($this->couponManager->couponDiscount() / 100) * $total;
+        $discount = $globalDiscount + $couponDiscount + $this->evaluateConditions();
 
         return max(0, $total - $discount);
+    }
+
+    /**
+     * Calculate total with the discount after tax.
+     */
+    public function calculateDiscountAfterTax(?int $globalDiscount = null): float
+    {
+
+        $total = $this->calculateTotal() + $this->calculateGlobalTax();
+        $globalDiscount = $this->calculateGlobalDiscount();
+        $couponDiscount = ($this->couponManager->couponDiscount() / 100) * $total;
+        $discount = $globalDiscount + $couponDiscount + $this->evaluateConditions();
+
+        return max(0, $total - $discount);
+    }
+
+    /**
+     * Calculate total with the discount before tax.
+     */
+    public function calculateDiscountBeforeTax(?int $globalDiscount = null): float
+    {
+        return $this->calculateDiscount($globalDiscount) + $this->calculateGlobalTax();
     }
 
     /**
@@ -90,8 +114,11 @@ trait HasCalculations
     /**
      * Get the total amount (after discounts and taxes).
      */
-    public function calculateFinalTotal(): float
+    public function calculateFinalTotal(bool $beforeTax = true): float
     {
-        return $this->calculateDiscount() + $this->calculateGlobalTax();
+
+        return $beforeTax ?
+            $this->calculateDiscountBeforeTax()
+            : $this->calculateDiscountAfterTax();
     }
 }

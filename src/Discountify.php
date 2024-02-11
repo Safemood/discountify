@@ -3,6 +3,8 @@
 namespace Safemood\Discountify;
 
 use Safemood\Discountify\Concerns\HasCalculations;
+use Safemood\Discountify\Concerns\HasConditions;
+use Safemood\Discountify\Concerns\HasCoupons;
 use Safemood\Discountify\Concerns\HasDynamicFields;
 use Safemood\Discountify\Contracts\DiscountifyInterface;
 use Safemood\Discountify\Events\DiscountAppliedEvent;
@@ -11,7 +13,7 @@ use Safemood\Discountify\Events\DiscountAppliedEvent;
  * Class Discountify
  *
  * @method array getConditions()
- * @method ConditionManager getConditionManager()
+ * @method ConditionManager conditions()
  * @method float getGlobalTaxRate()
  * @method int getGlobalDiscount()
  * @method array getItems()
@@ -22,10 +24,21 @@ use Safemood\Discountify\Events\DiscountAppliedEvent;
  * @method float totalWithDiscount(?float $globalDiscount = null)
  * @method self discount(float $globalDiscount)
  * @method self setFields(array $fields)
+ * @method CouponManager coupons()
+ * @method self addCoupon(array $coupon)
+ * @method self removeCoupon(string $code)
+ * @method self applyCoupon(string $code, int|string $userId = null)
+ * @method array|null getCoupon(string $code)
+ * @method int getCouponDiscount()
+ * @method self removeAppliedCoupons()
+ * @method self clearAppliedCoupons()
+ * @method array getAppliedCoupons()
  */
 class Discountify implements DiscountifyInterface
 {
     use HasCalculations;
+    use HasConditions;
+    use HasCoupons;
     use HasDynamicFields;
 
     protected array $items;
@@ -34,17 +47,15 @@ class Discountify implements DiscountifyInterface
 
     protected float $globalTaxRate;
 
-    protected ConditionManager $conditionManager;
-
     /**
      * Discountify constructor.
      */
     public function __construct(
-        ConditionManager $conditionManager
+        protected ConditionManager $conditionManager,
+        protected CouponManager $couponManager
     ) {
         $this->setGlobalDiscount(config('discountify.global_discount'));
         $this->setGlobalTaxRate(config('discountify.global_tax_rate'));
-        $this->setConditionManager($conditionManager);
     }
 
     /**
@@ -81,19 +92,19 @@ class Discountify implements DiscountifyInterface
     }
 
     /**
-     * Get the applied conditions.
+     * Get the ConditionManager instance.
      */
-    public function getConditions(): array
+    public function conditions(): ConditionManager
     {
-        return $this->conditionManager->getConditions();
+        return $this->conditionManager;
     }
 
     /**
-     * Get the ConditionManager instance.
+     * Get the CouponManager instance.
      */
-    public function getConditionManager(): ConditionManager
+    public function coupons(): CouponManager
     {
-        return $this->conditionManager;
+        return $this->couponManager;
     }
 
     /**
@@ -126,6 +137,16 @@ class Discountify implements DiscountifyInterface
     public function setConditionManager(ConditionManager $conditionManager): self
     {
         $this->conditionManager = $conditionManager;
+
+        return $this;
+    }
+
+    /**
+     * Set the CouponManager instance.
+     */
+    public function setCouponManager(CouponManager $couponManager): self
+    {
+        $this->couponManager = $couponManager;
 
         return $this;
     }
@@ -187,9 +208,9 @@ class Discountify implements DiscountifyInterface
     /**
      * Calculate the final total of the cart.
      */
-    public function total(): float
+    public function total(bool $beforeTax = true): float
     {
-        return $this->calculateFinalTotal();
+        return $this->calculateFinalTotal($beforeTax);
     }
 
     /**

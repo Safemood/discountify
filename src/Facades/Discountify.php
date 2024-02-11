@@ -10,9 +10,10 @@ use Safemood\Discountify\ConditionManager;
  *
  * @method static \Safemood\Discountify\Discountify discount(float $globalDiscount)
  * @method static array getConditions()
- * @method static ConditionManager getConditionManager()
+ * @method static ConditionManager conditions()
+ * @method static CouponManager coupons()
  * @method static int getGlobalDiscount()
- * @method static float getGlobalTaxRate()
+ * @method static int getGlobalTaxRate()
  * @method static array getItems()
  * @method static float subtotal()
  * @method static float total()

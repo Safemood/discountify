@@ -281,7 +281,6 @@ use Safemood\Discountify\Facades\Coupon;
 Coupon::add([
     'code' => 'TIMELIMITED50',
     'discount' => 50,
-    'singleUse' => true,
     'startDate' => now(),
     'endDate' => now()->addWeek(),
 ]);

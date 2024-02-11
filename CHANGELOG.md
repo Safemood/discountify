@@ -2,6 +2,14 @@
 
 All notable changes to `Discountify` will be documented in this file.
 
+## 1.4.0 - 2024-02-11
+
+## What's Changed
+* Added Coupon Based Discounts  by @Safemood in https://github.com/Safemood/discountify/pull/10
+
+
+**Full Changelog**: https://github.com/Safemood/discountify/compare/1.3.0...1.4.0
+
 ## 1.3.0 - 2024-01-26
 
 ## What's Changed

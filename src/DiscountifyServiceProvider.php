@@ -20,7 +20,7 @@ class DiscountifyServiceProvider extends PackageServiceProvider
     public function packageRegistered()
     {
 
-        $this->app->singleton(ConditionManager::class, function ($app) {
+        $this->app->singleton(ConditionManager::class, function () {
             $conditionManager = new ConditionManager();
 
             $conditionManager->discover(
@@ -31,8 +31,15 @@ class DiscountifyServiceProvider extends PackageServiceProvider
             return $conditionManager;
         });
 
+        $this->app->singleton(CouponManager::class, function () {
+            return new CouponManager();
+        });
+
         $this->app->singleton(Discountify::class, function (Application $app) {
-            return new Discountify($app->make(ConditionManager::class));
+            return new Discountify(
+                $app->make(ConditionManager::class),
+                $app->make(CouponManager::class)
+            );
         });
     }
 }

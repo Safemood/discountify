@@ -3,13 +3,17 @@
 namespace Safemood\Discountify\Contracts;
 
 use Safemood\Discountify\ConditionManager;
-use Safemood\Discountify\Discountify;
+use Safemood\Discountify\CouponManager;
 
 interface DiscountifyInterface
 {
-    public function getConditionManager(): ConditionManager;
+    public function discount(int $globalDiscount): self;
 
-    public function getConditions(): array;
+    public function evaluateConditions(): float;
+
+    public function conditions(): ConditionManager;
+
+    public function coupons(): CouponManager;
 
     public function getGlobalDiscount(): int;
 
@@ -17,11 +21,23 @@ interface DiscountifyInterface
 
     public function getItems(): array;
 
-    public function setConditionManager(ConditionManager $conditionManager): Discountify;
+    public function setConditionManager(ConditionManager $conditionManager): self;
 
-    public function setGlobalDiscount(int $globalDiscount): Discountify;
+    public function setCouponManager(CouponManager $couponManager): self;
 
-    public function setGlobalTaxRate(float $globalTaxRate): Discountify;
+    public function setGlobalDiscount(int $globalDiscount): self;
 
-    public function setItems(array $items): Discountify;
+    public function setGlobalTaxRate(float $globalTaxRate): self;
+
+    public function setItems(array $items): self;
+
+    public function subtotal(): float;
+
+    public function tax(?float $globalTaxRate = null): float;
+
+    public function taxAmount(?float $globalTaxRate = null): float;
+
+    public function total(): float;
+
+    public function totalWithDiscount(?int $globalDiscount = null): float;
 }

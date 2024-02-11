@@ -268,7 +268,84 @@ Check the [Laravel Events documentation](https://laravel.com/docs/10.x/events#re
 
 ### Coupon Based Discounts
 
-Coupon based discounts to easily apply and calculate discounts on a given coupon code (working on it !)
+Coupon based discounts to easily apply and calculate discounts (Percentage) on a given coupon code.
+
+Discountify Coupons allows you to apply various types of coupons to your cart.
+
+
+#### Time-Limited Coupon
+
+```php
+use Safemood\Discountify\Facades\Coupon;
+
+Coupon::add([
+    'code' => 'TIMELIMITED50',
+    'discount' => 50,
+    'singleUse' => true,
+    'startDate' => now(),
+    'endDate' => now()->addWeek(),
+]);
+
+$discountedTotal = Discountify::setItems($items)
+    ->applyCoupon('TIMELIMITED50')
+    ->total();
+```
+
+#### Single-Use Coupon
+
+```php
+use Safemood\Discountify\Facades\Coupon;
+
+Coupon::add([
+    'code' => 'SINGLEUSE50',
+    'discount' => 50,
+    'singleUse' => true,
+    'startDate' => now(),
+    'endDate' => now()->addWeek(),
+]);
+
+$discountedTotal = Discountify::setItems($items)
+    ->applyCoupon('SINGLEUSE50')
+    ->total();
+```
+
+#### Restricted User Coupon
+
+```php
+use Safemood\Discountify\Facades\Coupon;
+
+Coupon::add([
+    'code' => 'RESTRICTED20',
+    'discount' => 20,
+    'userIds' => [123, 456], // Restricted to user IDs 123 and 456
+    'startDate' => now(),
+    'endDate' => now()->addWeek(),
+]);
+
+$discountedTotal = Discountify::setItems($items)
+    ->applyCoupon('RESTRICTED20', 123) // Applying to user ID 123
+    ->total();
+```
+
+
+#### Limited Usage Coupon
+
+```php
+use Safemood\Discountify\Facades\Coupon;
+
+Coupon::add([
+    'code' => 'LIMITED25',
+    'discount' => 25,
+    'usageLimit' => 3, // Limited to 3 uses
+    'startDate' => now(),
+    'endDate' => now()->addWeek(),
+]);
+
+$discountedTotal = Discountify::setItems($items)
+    ->applyCoupon('LIMITED25')
+    ->total();
+
+```
 
 ## Testing
 

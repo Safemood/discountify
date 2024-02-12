@@ -273,13 +273,13 @@ Coupon based discounts to easily apply and calculate discounts (Percentage) on a
 Discountify Coupons allows you to apply various types of coupons to your cart.
 
 
-#### Time-Limited Coupon
+#### Period-Limited Coupon
 
 ```php
 use Safemood\Discountify\Facades\Coupon;
 
 Coupon::add([
-    'code' => 'TIMELIMITED50',
+    'code' => 'PERIODLIMITED50',
     'discount' => 50,
     'startDate' => now(),
     'endDate' => now()->addWeek(),

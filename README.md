@@ -68,7 +68,7 @@ class AppServiceProvider extends ServiceProvider
             // If the date is within a 7-day interval starting March 1, 2024, apply a 15% discount.
             ->add([
                 [
-                    'slug' => 'more_than_3_products_15',
+                    'slug' => 'promo_early_spring_sale_2024',
                     'condition' => fn ($items) => now()->between(
                         Carbon::createFromDate(2024, 3, 1),
                         Carbon::createFromDate(2024, 3, 15)->addDays(7)

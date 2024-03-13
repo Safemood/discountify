@@ -87,8 +87,8 @@ it('applies a single-use coupon only once', function () {
         'code' => 'SINGLEUSE10',
         'discount' => 10,
         'singleUse' => true,
-        'startDate' => '2024-02-01',
-        'endDate' => '2024-02-28',
+        'startDate' => now(),
+        'endDate' => now()->addMonth(),
     ];
 
     $this->couponManager->add($coupon);
@@ -102,8 +102,8 @@ it('tracks users who used the coupon', function () {
     $coupon = [
         'code' => 'TRACKED20',
         'discount' => 20,
-        'startDate' => '2024-02-01',
-        'endDate' => '2024-02-28',
+        'startDate' => now(),
+        'endDate' => now()->addMonth(),
     ];
     $this->couponManager->add($coupon);
 

@@ -2,6 +2,19 @@
 
 All notable changes to `Discountify` will be documented in this file.
 
+## 1.4.1 - 2024-03-27
+
+## What's Changed
+* Bump ramsey/composer-install from 2 to 3 by @dependabot in https://github.com/Safemood/discountify/pull/13
+* Update composer.json for Laravel 11 support by @imabulhasan99 in https://github.com/Safemood/discountify/pull/11
+* Update run-tests.yml by @imabulhasan99 in https://github.com/Safemood/discountify/pull/12
+* fix tests by @Safemood in https://github.com/Safemood/discountify/pull/14
+* Bump dependabot/fetch-metadata from 1.6.0 to 2.0.0 by @dependabot in https://github.com/Safemood/discountify/pull/15
+* Update version constraint for illuminate/contracts by @Safemood in https://github.com/Safemood/discountify/pull/17
+
+
+**Full Changelog**: https://github.com/Safemood/discountify/compare/1.4.0...1.4.1
+
 ## 1.4.0 - 2024-02-11
 
 ## What's Changed

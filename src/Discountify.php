@@ -84,7 +84,7 @@ class Discountify implements DiscountifyInterface
 
                 return $discount + match (true) {
                     $result === true => $this->calculateSubtotal() * ($condition['discount'] / 100),
-                    default => $condition['discount'],
+                    default => 0,
                 };
             },
             0

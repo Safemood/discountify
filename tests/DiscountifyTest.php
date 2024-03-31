@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
@@ -455,4 +456,81 @@ it('applies a limited usage coupon', function () {
         ->total();
 
     expect($discountedTotal)->toBe(floatval(150));
+});
+
+it('calculates total with discount applied during the early spring sale period', function () {
+    Carbon::setTestNow(Carbon::create(2024, 3, 10)); // date within the early spring sale period
+
+    $isInTheDate = now()->between(
+        Carbon::createFromDate(2024, 3, 1),
+        Carbon::createFromDate(2024, 3, 22)->addDays(7)
+    );
+
+    Condition::add([
+        [
+            'slug' => 'promo_early_spring_sale_2024',
+            'condition' => fn ($items) => $isInTheDate,
+            'discount' => 15,
+        ],
+    ]);
+
+    $cart = [
+        [
+            'id' => 1,
+            'product_id' => 1,
+            'product_name' => 'Product 1',
+            'quantity' => 5,
+            'price' => 10,
+        ],
+        [
+            'id' => 2,
+            'product_id' => 2,
+            'product_name' => 'Product 2',
+            'quantity' => 2,
+            'price' => 20,
+        ],
+    ];
+
+    $total = DiscountifyFacade::setItems($cart)->total();
+    expect($isInTheDate)->toBeTrue();
+    expect($total)->toBe(floatval(76.5)); // Total after applying a 15% discount
+});
+
+it('calculates total without discount applied outside the early spring sale period', function () {
+    Carbon::setTestNow(Carbon::create(2024, 2, 15)); // date outside the early spring sale period
+
+    $isInTheDate = now()->between(
+        Carbon::createFromDate(2024, 3, 1),
+        Carbon::createFromDate(2024, 3, 22)->addDays(7)
+    );
+
+    Condition::add([
+        [
+            'slug' => 'promo_early_spring_sale_2024',
+            'condition' => fn ($items) => $isInTheDate,
+            'discount' => 15,
+        ],
+    ]);
+
+    $cart = [
+        [
+            'id' => 1,
+            'product_id' => 1,
+            'product_name' => 'Product 1',
+            'quantity' => 5,
+            'price' => 10,
+        ],
+        [
+            'id' => 2,
+            'product_id' => 2,
+            'product_name' => 'Product 2',
+            'quantity' => 2,
+            'price' => 20,
+        ],
+    ];
+
+    $total = DiscountifyFacade::setItems($cart)->total();
+
+    expect($isInTheDate)->toBeFalse();
+    expect($total)->toBe(floatval(90)); // Total without any discount applied
 });

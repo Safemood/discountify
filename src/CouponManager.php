@@ -145,6 +145,8 @@ class CouponManager
         }
 
         if (! $this->checkUsageLimit($coupon)) {
+            $this->remove($code);
+
             return false;
         }
 

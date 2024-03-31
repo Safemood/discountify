@@ -534,3 +534,55 @@ it('calculates total without discount applied outside the early spring sale peri
     expect($isInTheDate)->toBeFalse();
     expect($total)->toBe(floatval(90)); // Total without any discount applied
 });
+
+it('applies limited usage coupon only once', function () {
+
+
+    Coupon::add([
+        'code' => 'LIMITED50',
+        'discount' => 50,
+        'usageLimit' => 1, // Limited to 1 uses
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ]);
+
+ 
+    $items = [
+        [
+            "id" => 1,
+            "product_id" => 1,
+            "product_name" => "Product 1",
+            "quantity" => 5,
+            "price" => 10
+        ],
+        [
+            "id" => 2,
+            "product_id" => 2,
+            "product_name" => "Product 2",
+            "quantity" => 2,
+            "price" => 25
+        ]
+    ];
+
+    $discountedTotal1 = DiscountifyFacade::setItems($items)
+        ->applyCoupon('LIMITED50')
+        ->total();
+
+    $appleied1 =  DiscountifyFacade::coupons()->appliedCoupons();
+
+
+    $discountedTotal2 = DiscountifyFacade::setItems($items)
+        ->applyCoupon('LIMITED50')
+        ->total();
+
+    $appleied2 =  DiscountifyFacade::coupons()->appliedCoupons();
+
+
+    expect($discountedTotal1)->toBe(floatval(50));
+    expect($appleied1)->not->toBeEmpty();
+    expect($appleied1[0]['code'])->toEqual('LIMITED50');
+
+    expect($discountedTotal2)->toBe(floatval(100)); // without the discount
+    expect($appleied2)->toBeEmpty();
+
+});

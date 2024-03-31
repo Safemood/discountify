@@ -2,6 +2,14 @@
 
 All notable changes to `Discountify` will be documented in this file.
 
+## 1.4.3 - 2024-03-31
+
+## What's Changed
+* Bug Fix: Ensure Limited Usage Coupon is Applied Only Once by @Safemood in https://github.com/Safemood/discountify/pull/22
+
+
+**Full Changelog**: https://github.com/Safemood/discountify/compare/1.4.2...1.4.3
+
 ## 1.4.2 - 2024-03-31
 
 ## What's Changed

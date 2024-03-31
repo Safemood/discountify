@@ -75,7 +75,7 @@ class CouponManager
      */
     public function apply(string $code, int|string|null $userId = null): bool
     {
-        if (!$this->verify($code, $userId)) {
+        if (! $this->verify($code, $userId)) {
             return false;
         }
 
@@ -131,7 +131,7 @@ class CouponManager
 
         if (
             $this->isCouponLimitedToUsers($coupon)
-            && !$this->isUserAllowedToUseCoupon($coupon, $userId)
+            && ! $this->isUserAllowedToUseCoupon($coupon, $userId)
         ) {
             return false;
         }
@@ -144,8 +144,9 @@ class CouponManager
             return false;
         }
 
-        if (!$this->checkUsageLimit($coupon)) {
+        if (! $this->checkUsageLimit($coupon)) {
             $this->remove($code);
+
             return false;
         }
 
@@ -215,7 +216,7 @@ class CouponManager
      */
     protected function checkUsageLimit(array $coupon): bool
     {
-        return !isset($coupon['usageLimit']) || $coupon['usageLimit'] > 0;
+        return ! isset($coupon['usageLimit']) || $coupon['usageLimit'] > 0;
     }
 
     /**

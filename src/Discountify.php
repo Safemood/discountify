@@ -43,11 +43,21 @@ class Discountify implements DiscountifyInterface
     use HasCoupons;
     use HasDynamicFields;
 
-    protected array $items;
+    /**
+     * @var array<mixed> $items The items in the cart.
+     */
+    protected array $items = [];
 
+    /**
+     * @var float $globalDiscount The global discount percentage.
+     */
     protected float $globalDiscount;
 
+    /**
+     * @var float $globalTaxRate The global tax rate.
+     */
     protected float $globalTaxRate;
+
 
     /**
      * Discountify constructor.
@@ -210,7 +220,7 @@ class Discountify implements DiscountifyInterface
     }
 
     /**
-     * Calculate the total tax amount of the cart.
+     * Calculate the savings of the cart.
      */
     public function savings(?float $globalDiscount = null): float
     {

@@ -44,20 +44,19 @@ class Discountify implements DiscountifyInterface
     use HasDynamicFields;
 
     /**
-     * @var array<mixed> $items The items in the cart.
+     * @var array<mixed> The items in the cart.
      */
     protected array $items = [];
 
     /**
-     * @var float $globalDiscount The global discount percentage.
+     * @var float The global discount percentage.
      */
     protected float $globalDiscount;
 
     /**
-     * @var float $globalTaxRate The global tax rate.
+     * @var float The global tax rate.
      */
     protected float $globalTaxRate;
-
 
     /**
      * Discountify constructor.

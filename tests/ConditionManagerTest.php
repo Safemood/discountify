@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Safemood\Discountify\ConditionManager;
 use Safemood\Discountify\Exceptions\DuplicateSlugException;
 use Safemood\Discountify\Facades\Condition;

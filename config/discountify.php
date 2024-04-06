@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'condition_namespace' => 'App\\Conditions',
     'condition_path' => app_path('Conditions'),

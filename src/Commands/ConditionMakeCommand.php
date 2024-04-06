@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Safemood\Discountify\Commands;
 
 use Illuminate\Console\GeneratorCommand;
@@ -32,10 +34,8 @@ class ConditionMakeCommand extends GeneratorCommand
 
     /**
      * Get the stub file for the generator.
-     *
-     * @return string
      */
-    protected function getStub()
+    protected function getStub(): string
     {
         return file_exists($customPath = $this->laravel->basePath('stubs/condition.stub'))
             ? $customPath
@@ -46,9 +46,8 @@ class ConditionMakeCommand extends GeneratorCommand
      * Get the default namespace for the class.
      *
      * @param  string  $rootNamespace
-     * @return string
      */
-    protected function getDefaultNamespace($rootNamespace)
+    protected function getDefaultNamespace($rootNamespace): string
     {
         return "{$rootNamespace}\\Conditions";
     }
@@ -57,9 +56,8 @@ class ConditionMakeCommand extends GeneratorCommand
      * Get the destination class path.
      *
      * @param  string  $name
-     * @return string
      */
-    protected function getPath($name)
+    protected function getPath($name): string
     {
 
         $customPath = config('discountify.condition_path');
@@ -69,10 +67,8 @@ class ConditionMakeCommand extends GeneratorCommand
 
     /**
      * Get the console command arguments.
-     *
-     * @return array
      */
-    protected function getOptions()
+    protected function getOptions(): array
     {
         return [
             ['discount', 'd', InputOption::VALUE_OPTIONAL, 'The discount for the condition', 0, []],
@@ -85,18 +81,17 @@ class ConditionMakeCommand extends GeneratorCommand
      * Build the class with the given name.
      *
      * @param  string  $name
-     * @return string
      *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    protected function buildClass($name)
+    protected function buildClass($name): string
     {
         $stub = parent::buildClass($name);
 
         return $this->customizeStub($stub);
     }
 
-    protected function customizeStub($stub)
+    protected function customizeStub($stub): string
     {
         $slug = $this->option('slug') ?? $this->getNameInput();
 

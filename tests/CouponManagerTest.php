@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Safemood\Discountify\CouponManager;
 use Safemood\Discountify\Facades\Coupon;
 
@@ -35,7 +37,52 @@ it('adds, retrieves, updates, and removes coupons', function () {
     expect($this->couponManager->get('WELCOME20'))->toBeNull();
 });
 
+it('can add a coupon', function () {
+
+    $coupon = [
+        'code' => 'WELCOME20',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    $this->couponManager->add($coupon);
+
+    $coupons = $this->couponManager->all();
+
+    expect(count($coupons))->toBeGreaterThan(0);
+
+    expect($coupons['WELCOME20'])->toBe($coupon);
+
+});
+
+it('can clear all coupons', function () {
+
+    $couponData = [
+        'code' => 'WELCOME20',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    $this->couponManager->add($couponData);
+
+    $this->couponManager->clear();
+
+    $coupons = $this->couponManager->all();
+
+    expect($coupons)->toBeEmpty();
+});
+
 it('checks if coupon is expired', function () {
+
+    $CouponHasNoEndDate = [
+        'code' => 'NO_END_DATE',
+        'discount' => 10,
+        'startDate' => now(),
+    ];
+    $this->couponManager->add($CouponHasNoEndDate);
+    expect($this->couponManager->isCouponExpired('NO_END_DATE'))->toBeFalse();
 
     $futureCoupon = [
         'code' => 'FUTURE10',
@@ -56,7 +103,26 @@ it('checks if coupon is expired', function () {
     expect($this->couponManager->isCouponExpired('PAST15'))->toBeTrue();
 });
 
-it('verifies coupon validity for a user', function () {
+it('checks if a coupon is already used by a user', function () {
+
+    $coupon = [
+        'code' => 'WELCOME20',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+        'usedBy' => [1, 2, 3],
+    ];
+
+    $userId = 2;
+    $reflectionMethod = new ReflectionMethod(CouponManager::class, 'isCouponAlreadyUsedByUser');
+    $reflectionMethod->setAccessible(true);
+
+    $isUsedByUser = $reflectionMethod->invoke($this->couponManager, $coupon, $userId);
+
+    expect($isUsedByUser)->toBeTrue();
+});
+
+it('verifies coupon validity', function () {
 
     $coupon = [
         'code' => 'WELCOME20',
@@ -65,6 +131,7 @@ it('verifies coupon validity for a user', function () {
         'startDate' => now(),
         'endDate' => now()->addWeek(),
     ];
+
     $this->couponManager->add($coupon);
 
     expect($this->couponManager->verify('WELCOME20', 123))->toBeTrue();
@@ -79,6 +146,8 @@ it('verifies coupon validity for a user', function () {
     ];
     $this->couponManager->add($expiredCoupon);
     expect($this->couponManager->verify('EXPIRED10'))->toBeFalse();
+
+    expect($this->couponManager->verify('INVALIDE_CODE'))->toBeFalse();
 });
 
 it('applies a single-use coupon only once', function () {
@@ -117,7 +186,7 @@ it('tracks users who used the coupon', function () {
 
 it('returns zero discount when no coupons are applied', function () {
 
-    expect($this->couponManager->couponDiscount())->toBe(0);
+    expect($this->couponManager->couponDiscount())->toEqual(0);
 });
 
 it('handles coupon usage limit', function () {
@@ -289,7 +358,7 @@ it('returns the total discount applied by coupons via the facade', function () {
     Coupon::apply('DISCOUNT10');
     Coupon::apply('DISCOUNT20');
 
-    expect(Coupon::couponDiscount())->toBe(30);
+    expect(Coupon::couponDiscount())->toBe(floatval(30));
 });
 
 it('verifies if a coupon is valid for use via the facade', function () {

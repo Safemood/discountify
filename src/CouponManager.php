@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Safemood\Discountify;
 
 /**
@@ -46,20 +48,12 @@ class CouponManager
     }
 
     /**
-     * Get all the coupons.
-     */
-    public function getCoupons(): array
-    {
-        return $this->coupons;
-    }
-
-    /**
      * Get the total discount applied by coupons.
      */
-    public function couponDiscount(): int
+    public function couponDiscount(): float
     {
         return collect($this->appliedCoupons())
-            ->sum(fn ($coupon) => $coupon['discount']);
+            ->sum(fn (array $coupon) => $coupon['discount']);
     }
 
     /**
@@ -99,7 +93,13 @@ class CouponManager
      */
     public function isCouponExpired(string $code): bool
     {
-        return isset($this->coupons[$code]['endDate']) && strtotime($this->coupons[$code]['endDate']) < strtotime('now');
+        if (! array_key_exists('endDate', $this->coupons[$code])) {
+            return false;
+        }
+
+        $endDateCarbon = $this->coupons[$code]['endDate'];
+
+        return $endDateCarbon->isPast();
     }
 
     /**
@@ -159,7 +159,7 @@ class CouponManager
     public function removeAppliedCoupons(): self
     {
         $this->coupons = collect($this->coupons)
-            ->reject(function ($coupon) {
+            ->reject(function (array $coupon) {
                 return $coupon['applied'] ?? false;
             })->toArray();
 
@@ -171,9 +171,10 @@ class CouponManager
      */
     public function clearAppliedCoupons(): self
     {
-        $this->coupons = collect($this->coupons)->reject(function ($coupon) {
-            return $coupon['applied'] ?? false;
-        })->toArray();
+        $this->coupons = collect($this->coupons)
+            ->reject(function (array $coupon) {
+                return $coupon['applied'] ?? false;
+            })->toArray();
 
         return $this;
     }
@@ -183,9 +184,10 @@ class CouponManager
      */
     public function appliedCoupons(): array
     {
-        return collect($this->coupons)->filter(function ($coupon) {
-            return $coupon['applied'] ?? false;
-        })->values()->all();
+        return collect($this->coupons)
+            ->filter(function (array $coupon) {
+                return $coupon['applied'] ?? false;
+            })->values()->all();
     }
 
     /**

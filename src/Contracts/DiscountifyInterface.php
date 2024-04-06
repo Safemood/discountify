@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Safemood\Discountify\Contracts;
 
 use Safemood\Discountify\ConditionManager;
@@ -7,15 +9,15 @@ use Safemood\Discountify\CouponManager;
 
 interface DiscountifyInterface
 {
-    public function discount(int $globalDiscount): self;
+    public function discount(float $globalDiscount): self;
 
-    public function evaluateConditions(): float;
+    public function conditionDiscount(): float;
 
     public function conditions(): ConditionManager;
 
     public function coupons(): CouponManager;
 
-    public function getGlobalDiscount(): int;
+    public function getGlobalDiscount(): float;
 
     public function getGlobalTaxRate(): float;
 
@@ -25,7 +27,7 @@ interface DiscountifyInterface
 
     public function setCouponManager(CouponManager $couponManager): self;
 
-    public function setGlobalDiscount(int $globalDiscount): self;
+    public function setGlobalDiscount(float $globalDiscount): self;
 
     public function setGlobalTaxRate(float $globalTaxRate): self;
 
@@ -35,9 +37,9 @@ interface DiscountifyInterface
 
     public function tax(?float $globalTaxRate = null): float;
 
-    public function taxAmount(?float $globalTaxRate = null): float;
+    public function taxAmount(bool $afterDiscount = false): float;
 
     public function total(): float;
 
-    public function totalWithDiscount(?int $globalDiscount = null): float;
+    public function totalWithDiscount(?float $globalDiscount = null): float;
 }

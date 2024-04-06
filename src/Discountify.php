@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Safemood\Discountify;
 
 use Safemood\Discountify\Concerns\HasCalculations;
@@ -15,7 +17,7 @@ use Safemood\Discountify\Events\DiscountAppliedEvent;
  * @method array getConditions()
  * @method ConditionManager conditions()
  * @method float getGlobalTaxRate()
- * @method int getGlobalDiscount()
+ * @method float getGlobalDiscount()
  * @method array getItems()
  * @method float subtotal()
  * @method float tax()
@@ -29,7 +31,7 @@ use Safemood\Discountify\Events\DiscountAppliedEvent;
  * @method self removeCoupon(string $code)
  * @method self applyCoupon(string $code, int|string $userId = null)
  * @method array|null getCoupon(string $code)
- * @method int getCouponDiscount()
+ * @method float getCouponDiscount()
  * @method self removeAppliedCoupons()
  * @method self clearAppliedCoupons()
  * @method array getAppliedCoupons()
@@ -43,7 +45,7 @@ class Discountify implements DiscountifyInterface
 
     protected array $items;
 
-    protected int $globalDiscount;
+    protected float $globalDiscount;
 
     protected float $globalTaxRate;
 
@@ -61,7 +63,7 @@ class Discountify implements DiscountifyInterface
     /**
      * Set the global discount.
      */
-    public function discount(int $globalDiscount): self
+    public function discount(float $globalDiscount): self
     {
         $this->globalDiscount = $globalDiscount;
 
@@ -69,21 +71,23 @@ class Discountify implements DiscountifyInterface
     }
 
     /**
-     * Evaluate conditions and calculate the total discount.
+     *  calculate the total discount.
      */
-    public function evaluateConditions(): float
+    public function conditionDiscount(): float
     {
         return array_reduce(
             $this->conditionManager->getConditions(),
-            function ($discount, $condition) {
-                $result = is_callable($condition['condition']) ? $condition['condition']($this->items) : $condition['condition'];
+            function (float $discount, array $condition): float {
+                $result = is_callable($condition['condition'])
+                    ? $condition['condition']($this->items)
+                    : $condition['condition'];
 
                 if (config('discountify.fire_events')) {
                     event(new DiscountAppliedEvent($condition['slug'], $condition['discount'], $condition['condition']));
                 }
 
-                return $discount + match (true) {
-                    $result === true => $this->calculateSubtotal() * ($condition['discount'] / 100),
+                return (float) $discount + match (true) {
+                    $result === true => $condition['discount'],
                     default => 0,
                 };
             },
@@ -110,7 +114,7 @@ class Discountify implements DiscountifyInterface
     /**
      * Get the global discount percentage.
      */
-    public function getGlobalDiscount(): int
+    public function getGlobalDiscount(): float
     {
         return $this->globalDiscount;
     }
@@ -154,7 +158,7 @@ class Discountify implements DiscountifyInterface
     /**
      * Set the global discount.
      */
-    public function setGlobalDiscount(int $globalDiscount): self
+    public function setGlobalDiscount(float $globalDiscount): self
     {
         $this->globalDiscount = $globalDiscount;
 
@@ -200,24 +204,40 @@ class Discountify implements DiscountifyInterface
     /**
      * Calculate the total tax amount of the cart.
      */
-    public function taxAmount(?float $globalTaxRate = null): float
+    public function taxAmount(bool $afterDiscount = false): float
     {
-        return $this->calculateGlobalTax($globalTaxRate);
+        return $this->calculateTaxAmout($afterDiscount);
+    }
+
+    /**
+     * Calculate the total tax amount of the cart.
+     */
+    public function savings(?float $globalDiscount = null): float
+    {
+        return round($this->calculateSavings($globalDiscount), 3);
     }
 
     /**
      * Calculate the final total of the cart.
      */
-    public function total(bool $beforeTax = true): float
+    public function total(): float
     {
-        return $this->calculateFinalTotal($beforeTax);
+        return round($this->calculateFinalTotal(), 3);
+    }
+
+    /**
+     * Calculate the final total of the cart.
+     */
+    public function totalDetailed(): array
+    {
+        return $this->calculateFinalTotalDetails();
     }
 
     /**
      * Calculate the total with applied discount.
      */
-    public function totalWithDiscount(?int $globalDiscount = null): float
+    public function totalWithDiscount(?float $globalDiscount = null): float
     {
-        return $this->calculateDiscount($globalDiscount);
+        return $this->calculateTotalAfterDiscount($globalDiscount);
     }
 }

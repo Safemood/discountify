@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Safemood\Discountify\Concerns;
 
 /**
@@ -52,7 +54,7 @@ trait HasCoupons
     /**
      * Get the total discount applied by coupons.
      */
-    public function getCouponDiscount(): int
+    public function getCouponDiscount(): float
     {
         return $this->coupons()->couponDiscount();
     }

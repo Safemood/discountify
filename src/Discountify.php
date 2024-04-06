@@ -206,7 +206,7 @@ class Discountify implements DiscountifyInterface
      */
     public function taxAmount(bool $afterDiscount = false): float
     {
-        return $this->calculateTaxAmout($afterDiscount);
+        return $this->calculateTaxAmount($afterDiscount);
     }
 
     /**

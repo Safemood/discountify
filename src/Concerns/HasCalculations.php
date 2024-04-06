@@ -87,7 +87,7 @@ trait HasCalculations
     /**
      * Get the tax amount.
      */
-    public function calculateTaxAmout(bool $afterDiscount = false): float
+    public function calculateTaxAmount(bool $afterDiscount = false): float
     {
         $subTotal = $afterDiscount ? $this->calculateTotalAfterDiscount() : $this->calculateSubtotal();
 
@@ -128,7 +128,7 @@ trait HasCalculations
         return [
             'total' => round($this->calculateFinalTotal(), 3),
             'subtotal' => $this->calculateSubtotal(),
-            'tax_amount' => $this->calculateTaxAmout(),
+            'tax_amount' => $this->calculateTaxAmount(),
             //'total_after_tax' => $this->calculateTotalWithTaxes(),
             'total_after_discount' => $this->calculateTotalAfterDiscount(),
             'savings' => round($this->calculateSavings(), 3),

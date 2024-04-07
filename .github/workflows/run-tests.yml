@@ -47,5 +47,8 @@ jobs:
       - name: List Installed Dependencies
         run: composer show -D
 
+      - name: test type coverage
+        run: vendor/bin/pest --type-coverage --min=98
+
       - name: Execute tests
-        run: vendor/bin/pest --ci
+        run: XDEBUG_MODE=coverage vendor/bin/pest --coverage --min=95

@@ -51,4 +51,6 @@ jobs:
         run: vendor/bin/pest --type-coverage --min=98
 
       - name: Execute tests
-        run: XDEBUG_MODE=coverage vendor/bin/pest --coverage --min=95
+        run: vendor/bin/pest --coverage --min=95
+        env:
+          XDEBUG_MODE: coverage

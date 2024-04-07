@@ -1,11 +1,9 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Out of 108 possible param types, only 102 \\- 94\\.4 %% actually have it\\. Add more param types to get over 99 %%$#"
-			count: 4
+			message: "#^Out of 109 possible param types, only 104 \\- 95\\.4 %% actually have it\\. Add more param types to get over 99 %%$#"
 			path: src/Commands/ConditionMakeCommand.php
 
 		-
-			message: "#^Out of 108 possible param types, only 102 \\- 94\\.4 %% actually have it\\. Add more param types to get over 99 %%$#"
-			count: 2
+			message: "#^Out of 109 possible param types, only 104 \\- 95\\.4 %% actually have it\\. Add more param types to get over 99 %%$#"
 			path: src/Discountify.php

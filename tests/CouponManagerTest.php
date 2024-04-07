@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Safemood\Discountify\CouponManager;
 use Safemood\Discountify\Facades\Coupon;
+use Safemood\Discountify\Exceptions\DuplicateCouponException;
 
 beforeEach(function () {
 
@@ -55,6 +56,13 @@ it('can add a coupon', function () {
     expect($coupons['WELCOME20'])->toBe($coupon);
 
 });
+
+it('throws an exception when adding a coupon with a duplicate code', function () {
+ 
+    $this->couponManager->add(['code' => 'unique_coupon', 'discount' => 10]);
+    $this->couponManager->add(['code' => 'unique_coupon', 'discount' => 15]);
+ 
+})->throws(DuplicateCouponException::class, "Coupon with code 'unique_coupon' already exists.");
 
 it('can clear all coupons', function () {
 

@@ -37,7 +37,7 @@ interface DiscountifyInterface
 
     public function tax(?float $globalTaxRate = null): float;
 
-    public function taxAmount(bool $afterDiscount = false): float;
+    public function taxAmount(?float $globalTaxRate = null): float;
 
     public function total(): float;
 

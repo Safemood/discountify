@@ -104,11 +104,11 @@ trait HasCalculations
      * @param  bool  $afterDiscount  Optional. Whether to calculate tax after applying discounts. Defaults to false.
      * @return float The tax amount.
      */
-    public function calculateTaxAmount(bool $afterDiscount = false): float
+    public function calculateTaxAmount(?float $globalTaxRate = null, bool $afterDiscount = false): float
     {
         $subTotal = $afterDiscount ? $this->calculateTotalAfterDiscount() : $this->calculateSubtotal();
 
-        return $subTotal * ($this->getGlobalTaxRate() / 100);
+        return $subTotal * ($globalTaxRate ?? $this->getGlobalTaxRate() / 100);
     }
 
     /**

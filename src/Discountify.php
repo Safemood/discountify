@@ -21,7 +21,7 @@ use Safemood\Discountify\Events\DiscountAppliedEvent;
  * @method array getItems()
  * @method float subtotal()
  * @method float tax()
- * @method float taxAmount(?float $globalTaxRate = null)
+ * @method float taxAmount(bool $afterDiscount = false)
  * @method float total()
  * @method float totalWithDiscount(?float $globalDiscount = null)
  * @method self discount(float $globalDiscount)
@@ -236,12 +236,12 @@ class Discountify implements DiscountifyInterface
     /**
      * Calculate the total tax amount of the cart.
      *
-     * @param  bool  $afterDiscount  Whether to calculate tax after applying discounts. Defaults to false.
+     * @param  float|null  $globalTaxRate  The global tax rate. Defaults to null.
      * @return float The total tax amount of the cart.
      */
-    public function taxAmount(bool $afterDiscount = false): float
+    public function taxAmount(?float $globalTaxRate = null): float
     {
-        return $this->calculateTaxAmount($afterDiscount);
+        return $this->calculateTaxAmount($globalTaxRate);
     }
 
     /**

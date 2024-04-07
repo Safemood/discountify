@@ -1,7 +1,6 @@
 
 # Laravel Discountify for dynamic discounts with custom conditions.
 
-
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/safemood/discountify.svg?style=flat-square)](https://packagist.org/packages/safemood/discountify)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/safemood/discountify/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/safemood/discountify/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/safemood/discountify/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/safemood/discountify/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
@@ -114,6 +113,10 @@ Discountify::setItems($items)
 
 $total = Discountify::total();
 
+// Calculate total amount with detailed breakdown
+// (array contains total, subtotal, tax amount, total after discount, savings, tax rate, discount rate)
+$total = Discountify::totalDetailed();
+
 // Calculate the total amount with the applied global discount
 
 $totalWithDiscount = Discountify::totalWithDiscount();
@@ -122,9 +125,18 @@ $totalWithDiscount = Discountify::totalWithDiscount();
 
 $totalWithTaxes = Discountify::tax();
 
-// Calculate the total tax amount based on the given tax rate (19 in this case)
+// Calculate the total tax amount based on the given tax rate (19 in this case) (before discounts)
 
 $taxAmount = Discountify::taxAmount(19);
+
+// Calculate tax amount with tax applied after discounts
+
+$taxAmount = Discountify::calculateTaxAmount(19, true);
+
+
+// Calculate the amount saved
+$savings = Discountify::savings();
+
 
 ```
 ### Dynamic Field Names
@@ -242,7 +254,7 @@ class OrderTotalDiscount implements ConditionInterface
 
 ### Event Tracking
 
-You can listen for the `DiscountAppliedEvent` using Laravel's Event system. 
+You can listen for the `DiscountAppliedEvent` and `CouponAppliedEvent` using Laravel's Event system. 
 
 
 Ensure the following configuration in the discountify.php file:
@@ -262,6 +274,12 @@ public function boot(): void
     Event::listen(function (DiscountAppliedEvent $event) {
         // Your event handling logic here
         // Ex : Mail to costumer
+        // dd($event);
+    });
+
+    Event::listen(function (CouponAppliedEvent $event) { // Added
+        // Your event handling logic for CouponAppliedEvent here
+        // Example: Log coupon usage
         // dd($event);
     });
 }

@@ -173,54 +173,10 @@ $totalWithDiscount = $discountify->totalWithDiscount(50);
 
 The classes in App\Conditions will be auto-discovered by Discountify for seamless integration—no configuration is needed.
 
-```php
-// app/Conditions
-<?php
-
-namespace App\Conditions;
-
-use Safemood\Discountify\Contracts\ConditionInterface;
-
-class MoreThan1ProductsCondition implements ConditionInterface
-{
-    public string $slug = 'more_than_1_products_10';
-
-    public int $discount = 10;
-
-    public function __invoke(array $items): bool
-    {
-        return count($items) > 1;
-    }
-}
-
-```
-
-### Skip Discounts Conditions
-
-This will allows you to exclude specific conditions based on the "skip" field.
-
-Using Condition::define:
-
-```php
-Condition::define('condition2', fn ($items) => false, 20, true);  // Will be skipped
-```
-
-- Using Condition::add:
-```php
-Condition::add([
-    ['slug' => 'condition1', 'condition' => fn ($items) => true, 'discount' => 10, 'skip' => false],  // Won't be skipped
-    ['slug' => 'condition2', 'condition' => fn ($items) => false, 'discount' => 20, 'skip' => true], // Will be skipped
-    ['slug' => 'condition3', 'condition' => fn ($items) => true, 'discount' => 30], // Will not be skipped (default skip is false)
-]);
-```
-- Using  Class-Based Conditions:
+- Create  Class-Based Conditions:
 
 To create a class-based condition using the `discountify:condition` artisan command, you can run the following command:
-Options:
 
---discount (-d): Specifies the discount value for the condition. Default value is 0.<br/>
---slug (-s): Specifies the slug for the condition. If not provided, the name of the condition will be used as the slug.<br/>
---force (-f): Creates the class even if the condition class already exists. <br/>
 
 ```php
 php artisan discountify:condition OrderTotalDiscount 
@@ -250,6 +206,31 @@ class OrderTotalDiscount implements ConditionInterface
          return count($items) > 5;
     }
 }
+```
+
+- Command Options:
+
+--discount (-d): Specifies the discount value for the condition. Default value is 0.<br/>
+--slug (-s): Specifies the slug for the condition. If not provided, the name of the condition will be used as the slug.<br/>
+--force (-f): Creates the class even if the condition class already exists. <br/>
+
+### Skip Discounts Conditions
+
+This will allows you to exclude specific conditions based on the "skip" field.
+
+Using Condition::define:
+
+```php
+Condition::define('condition2', fn ($items) => false, 20, true);  // Will be skipped
+```
+
+- Using Condition::add:
+```php
+Condition::add([
+    ['slug' => 'condition1', 'condition' => fn ($items) => true, 'discount' => 10, 'skip' => false],  // Won't be skipped
+    ['slug' => 'condition2', 'condition' => fn ($items) => false, 'discount' => 20, 'skip' => true], // Will be skipped
+    ['slug' => 'condition3', 'condition' => fn ($items) => true, 'discount' => 30], // Will not be skipped (default skip is false)
+]);
 ```
 
 ### Event Tracking

@@ -2,6 +2,29 @@
 
 All notable changes to `Discountify` will be documented in this file.
 
+## 1.5.0 - 2024-04-07
+
+## What's Changed
+
+* **Logic and Calculation Bug Fixes:** All logic and calculation bugs have been addressed and resolved to enhance the reliability and accuracy of the package.
+* `totalDetailed()`: This method calculates the total with a detailed breakdown.
+* `calculateTaxAmount()`: This method now calculates the tax amount, with an optional parameter to toggle between before and after discount (default is before discount).
+* `savings()`: This method calculates the amount saved.
+* **CouponAppliedEvent:** Added an event for when a coupon is applied.
+* **DuplicateCouponException:** Implemented an exception for handling duplicate coupons.
+* **Test Coverage:** Increased test coverage (99.6%) provides strong validation for the functionality of the introduced methods.
+* **Type Coverage:** Achieving a robust type coverage of (98.8%) ensures the solidity and accuracy of the codebase, reinforcing its reliability and correctness.
+* **Spread Cheat:** I used a spread cheat (yes excel 😅 ) to validate all results [link](https://docs.google.com/spreadsheets/d/1ki9xv1ivADVrvEEVj4L7C20mFNuN9l_S/edit#gid=1398535476).
+* **Manual Validation:** Manual calculations were performed on a variety of test data scenarios to ensure the accuracy of the package results.
+* Cross-checked the results with several websites to ensure accuracy:
+
+1. [Shopify Discount Calculator](https://www.shopify.com/tools/discount-calculator)
+2. [Financial Calculator](https://www.fncalculator.com/financialcalculator?type=discountCalculator)
+3. [Discount Calculator](https://www.calculator.net/discount-calculator.html)
+
+
+**Full Changelog**: https://github.com/Safemood/discountify/compare/1.4.3...1.5.0
+
 ## 1.4.3 - 2024-03-31
 
 ## What's Changed

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\File;
 use Safemood\Discountify\ConditionManager;
 use Safemood\Discountify\CouponManager;
 use Safemood\Discountify\Discountify;
+use Safemood\Discountify\Events\CouponAppliedEvent;
 use Safemood\Discountify\Events\DiscountAppliedEvent;
 use Safemood\Discountify\Exceptions\ZeroQuantityException;
 use Safemood\Discountify\Facades\Condition;
@@ -530,6 +531,47 @@ it('clears all applied coupons correctly', function () {
 
     expect($this->discountify->coupons()->appliedCoupons())->toBeEmpty();
 });
+
+it('dispatches CouponAppliedEvent if fire_events configuration is true', function () {
+
+    Event::fake();
+
+    Config::set('discountify.fire_events', true);
+    $coupon = [
+        'code' => 'WELCOME30',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    $this->discountify->coupons()->add($coupon);
+
+    $this->discountify->applyCoupon('WELCOME30');
+
+    Event::assertDispatched(CouponAppliedEvent::class, function ($event) use ($coupon) {
+        return $event->coupon['code'] === $coupon['code'];
+    });
+});
+
+it('does not dispatch CouponAppliedEvent if fire_events configuration is false', function () {
+
+    Event::fake();
+
+    Config::set('discountify.fire_events', false);
+    $coupon = [
+        'code' => 'WELCOME30',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    $this->discountify->coupons()->add($coupon);
+
+    $this->discountify->applyCoupon('WELCOME30');
+
+    Event::assertNotDispatched(CouponAppliedEvent::class);
+});
+
 
 it('calculates the total discount applied by coupons correctly', function () {
 

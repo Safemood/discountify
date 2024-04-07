@@ -572,7 +572,6 @@ it('does not dispatch CouponAppliedEvent if fire_events configuration is false',
     Event::assertNotDispatched(CouponAppliedEvent::class);
 });
 
-
 it('calculates the total discount applied by coupons correctly', function () {
 
     $coupon1 = [

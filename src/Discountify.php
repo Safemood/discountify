@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Safemood\Discountify;
 
 use Safemood\Discountify\Concerns\HasCalculations;
@@ -15,7 +17,7 @@ use Safemood\Discountify\Events\DiscountAppliedEvent;
  * @method array getConditions()
  * @method ConditionManager conditions()
  * @method float getGlobalTaxRate()
- * @method int getGlobalDiscount()
+ * @method float getGlobalDiscount()
  * @method array getItems()
  * @method float subtotal()
  * @method float tax()
@@ -29,7 +31,7 @@ use Safemood\Discountify\Events\DiscountAppliedEvent;
  * @method self removeCoupon(string $code)
  * @method self applyCoupon(string $code, int|string $userId = null)
  * @method array|null getCoupon(string $code)
- * @method int getCouponDiscount()
+ * @method float getCouponDiscount()
  * @method self removeAppliedCoupons()
  * @method self clearAppliedCoupons()
  * @method array getAppliedCoupons()
@@ -41,10 +43,19 @@ class Discountify implements DiscountifyInterface
     use HasCoupons;
     use HasDynamicFields;
 
-    protected array $items;
+    /**
+     * @var array<mixed> The items in the cart.
+     */
+    protected array $items = [];
 
-    protected int $globalDiscount;
+    /**
+     * @var float The global discount percentage.
+     */
+    protected float $globalDiscount;
 
+    /**
+     * @var float The global tax rate.
+     */
     protected float $globalTaxRate;
 
     /**
@@ -60,8 +71,10 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Set the global discount.
+     *
+     * @param  float  $globalDiscount  The global discount percentage.
      */
-    public function discount(int $globalDiscount): self
+    public function discount(float $globalDiscount): self
     {
         $this->globalDiscount = $globalDiscount;
 
@@ -69,21 +82,23 @@ class Discountify implements DiscountifyInterface
     }
 
     /**
-     * Evaluate conditions and calculate the total discount.
+     * Calculate the total discount rate percentage based on conditions.
      */
-    public function evaluateConditions(): float
+    public function conditionDiscount(): float
     {
         return array_reduce(
             $this->conditionManager->getConditions(),
-            function ($discount, $condition) {
-                $result = is_callable($condition['condition']) ? $condition['condition']($this->items) : $condition['condition'];
+            function (float $discount, array $condition): float {
+                $result = is_callable($condition['condition'])
+                    ? $condition['condition']($this->items)
+                    : $condition['condition'];
 
                 if (config('discountify.fire_events')) {
                     event(new DiscountAppliedEvent($condition['slug'], $condition['discount'], $condition['condition']));
                 }
 
-                return $discount + match (true) {
-                    $result === true => $this->calculateSubtotal() * ($condition['discount'] / 100),
+                return (float) $discount + match (true) {
+                    $result === true => $condition['discount'],
                     default => 0,
                 };
             },
@@ -109,14 +124,18 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Get the global discount percentage.
+     *
+     * @return float The global discount percentage.
      */
-    public function getGlobalDiscount(): int
+    public function getGlobalDiscount(): float
     {
         return $this->globalDiscount;
     }
 
     /**
      * Get the global tax rate.
+     *
+     * @return float The global tax rate.
      */
     public function getGlobalTaxRate(): float
     {
@@ -125,6 +144,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Get the items in the cart.
+     *
+     * @return array<mixed> The items in the cart.
      */
     public function getItems(): array
     {
@@ -133,6 +154,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Set the ConditionManager instance.
+     *
+     * @param  ConditionManager  $conditionManager  The ConditionManager instance to set.
      */
     public function setConditionManager(ConditionManager $conditionManager): self
     {
@@ -143,6 +166,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Set the CouponManager instance.
+     *
+     * @param  CouponManager  $couponManager  The CouponManager instance to set.
      */
     public function setCouponManager(CouponManager $couponManager): self
     {
@@ -153,8 +178,10 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Set the global discount.
+     *
+     * @param  float  $globalDiscount  The global discount percentage to set.
      */
-    public function setGlobalDiscount(int $globalDiscount): self
+    public function setGlobalDiscount(float $globalDiscount): self
     {
         $this->globalDiscount = $globalDiscount;
 
@@ -163,6 +190,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Set the global tax rate.
+     *
+     * @param  float  $globalTaxRate  The global tax rate to set.
      */
     public function setGlobalTaxRate(float $globalTaxRate): self
     {
@@ -173,6 +202,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Set the items in the cart.
+     *
+     * @param  array<mixed>  $items  The items to set in the cart.
      */
     public function setItems(array $items): self
     {
@@ -183,6 +214,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Calculate the subtotal of the cart.
+     *
+     * @return float The subtotal of the cart.
      */
     public function subtotal(): float
     {
@@ -191,6 +224,9 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Calculate the total tax of the cart.
+     *
+     * @param  float|null  $globalTaxRate  The global tax rate. Defaults to null.
+     * @return float The total tax of the cart.
      */
     public function tax(?float $globalTaxRate = null): float
     {
@@ -199,25 +235,54 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Calculate the total tax amount of the cart.
+     *
+     * @param  bool  $afterDiscount  Whether to calculate tax after applying discounts. Defaults to false.
+     * @return float The total tax amount of the cart.
      */
-    public function taxAmount(?float $globalTaxRate = null): float
+    public function taxAmount(bool $afterDiscount = false): float
     {
-        return $this->calculateGlobalTax($globalTaxRate);
+        return $this->calculateTaxAmount($afterDiscount);
+    }
+
+    /**
+     * Calculate the savings of the cart.
+     *
+     * @param  float|null  $globalDiscount  The global discount percentage. Defaults to null.
+     * @return float The savings of the cart.
+     */
+    public function savings(?float $globalDiscount = null): float
+    {
+        return round($this->calculateSavings($globalDiscount), 3);
     }
 
     /**
      * Calculate the final total of the cart.
+     *
+     * @return float The final total of the cart.
      */
-    public function total(bool $beforeTax = true): float
+    public function total(): float
     {
-        return $this->calculateFinalTotal($beforeTax);
+        return round($this->calculateFinalTotal(), 3);
+    }
+
+    /**
+     * Calculate the detailed final total of the cart.
+     *
+     * @return array The detailed final total of the cart.
+     */
+    public function totalDetailed(): array
+    {
+        return $this->calculateFinalTotalDetails();
     }
 
     /**
      * Calculate the total with applied discount.
+     *
+     * @param  float|null  $globalDiscount  The global discount percentage. Defaults to null.
+     * @return float The total with applied discount.
      */
-    public function totalWithDiscount(?int $globalDiscount = null): float
+    public function totalWithDiscount(?float $globalDiscount = null): float
     {
-        return $this->calculateDiscount($globalDiscount);
+        return $this->calculateTotalAfterDiscount($globalDiscount);
     }
 }

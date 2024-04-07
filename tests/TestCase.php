@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Safemood\Discountify\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;

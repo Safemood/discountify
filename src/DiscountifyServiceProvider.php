@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Safemood\Discountify;
 
 use Illuminate\Contracts\Foundation\Application;
@@ -17,7 +19,7 @@ class DiscountifyServiceProvider extends PackageServiceProvider
             ->hasCommand(ConditionMakeCommand::class);
     }
 
-    public function packageRegistered()
+    public function packageRegistered(): void
     {
 
         $this->app->singleton(ConditionManager::class, function () {

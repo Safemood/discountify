@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Safemood\Discountify\Events;
 
-class DiscountAppliedEvent
+class CouponAppliedEvent
 {
     public function __construct(
-        public string $slug,
-        public float $discount,
-        public mixed $condition
+        public array $coupon,
     ) {
     }
 }

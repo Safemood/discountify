@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Safemood\Discountify\Contracts;
 
 use Safemood\Discountify\ConditionManager;

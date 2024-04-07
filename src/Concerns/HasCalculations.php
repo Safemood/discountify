@@ -1,124 +1,169 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Safemood\Discountify\Concerns;
+
+use Safemood\Discountify\Exceptions\ZeroQuantityException;
 
 /**
  * Trait HasCalculations
+ *
+ * This trait provides methods for performing various calculations within Discountify.
  */
 trait HasCalculations
 {
     /**
      * Calculate the global discount amount.
+     *
+     * @return float The global discount amount.
      */
-    private function calculateGlobalDiscount(): float
+    public function calculateGlobalDiscount(): float
     {
-        return $this->calculateTotal() * ($this->globalDiscount / 100);
+        return $this->calculateSubtotal() * ($this->getGlobalDiscount() / 100);
     }
 
     /**
      * Calculate total with global tax rate.
+     *
+     * @param  float|null  $globalTaxRate  Optional. The global tax rate. Defaults to null.
+     * @return float The total with taxes.
      */
     public function calculateTotalWithTaxes(?float $globalTaxRate = null): float
     {
-        $this->globalTaxRate = $globalTaxRate ?? $this->globalTaxRate;
+        $this->globalTaxRate = $globalTaxRate ?? $this->getGlobalTaxRate();
 
-        $total = $this->calculateTotal();
+        $total = $this->calculateSubtotal();
         $tax = $this->calculateGlobalTax();
 
         return $total + $tax;
     }
 
     /**
-     * Calculate total with the discount.
+     * Calculate the total discount rate.
+     *
+     * @param  float|null  $globalDiscount  Optional. The global discount rate. Defaults to null.
+     * @return float The total discount rate.
      */
-    public function calculateDiscount(?int $globalDiscount = null): float
+    public function discountRate(?float $globalDiscount = null): float
     {
-        $this->globalDiscount = $globalDiscount ?? $this->globalDiscount;
+        $globalDiscount = $globalDiscount ?? $this->getGlobalDiscount();
 
-        $total = $this->calculateTotal();
-        $globalDiscount = $this->calculateGlobalDiscount();
-        $couponDiscount = ($this->couponManager->couponDiscount() / 100) * $total;
-        $discount = $globalDiscount + $couponDiscount + $this->evaluateConditions();
+        $couponDiscount = $this->couponManager->couponDiscount();
+        $conditionDiscount = $this->conditionDiscount();
 
-        return max(0, $total - $discount);
+        $totalDiscountRate = $globalDiscount + $conditionDiscount + $couponDiscount;
+
+        return min($totalDiscountRate, 100);
     }
 
     /**
-     * Calculate total with the discount after tax.
-     */
-    public function calculateDiscountAfterTax(?int $globalDiscount = null): float
-    {
-
-        $total = $this->calculateTotal() + $this->calculateGlobalTax();
-        $globalDiscount = $this->calculateGlobalDiscount();
-        $couponDiscount = ($this->couponManager->couponDiscount() / 100) * $total;
-        $discount = $globalDiscount + $couponDiscount + $this->evaluateConditions();
-
-        return max(0, $total - $discount);
-    }
-
-    /**
-     * Calculate total with the discount before tax.
-     */
-    public function calculateDiscountBeforeTax(?int $globalDiscount = null): float
-    {
-        return $this->calculateDiscount($globalDiscount) + $this->calculateGlobalTax();
-    }
-
-    /**
-     * Calculate total with global tax rate.
+     * Calculate the global tax amount.
+     *
+     * @param  float|null  $globalTaxRate  Optional. The global tax rate. Defaults to null.
+     * @return float The global tax amount.
      */
     public function calculateGlobalTax(?float $globalTaxRate = null): float
     {
-        $this->globalTaxRate = $globalTaxRate ?? $this->globalTaxRate;
+        $taxRate = $globalTaxRate ?? $this->getGlobalTaxRate();
 
-        $total = $this->calculateTotal();
+        $total = $this->calculateSubtotal();
 
-        return $total * ($this->globalTaxRate / 100);
+        return $total * ($taxRate / 100);
     }
 
     /**
-     * Calculate total amount based on items.
+     * Calculate the subtotal amount.
+     *
+     * @return float The subtotal amount.
+     *
+     * @throws ZeroQuantityException If any item in the cart has a quantity of zero.
      */
-    private function calculateTotal(): float
+    public function calculateSubtotal(): float
     {
-        if (! is_array($this->items)) {
-            return 0;
-        }
 
         return array_reduce(
             $this->items,
             function ($total, $item) {
-                return $total + ($this->getField($item, 'quantity') * $this->getField($item, 'price'));
+                $quantity = $this->getField($item, 'quantity');
+                $price = $this->getField($item, 'price');
+
+                if ($quantity === 0) {
+                    throw new ZeroQuantityException();
+                }
+
+                return $total + ($quantity * $price);
             },
             0
         );
     }
 
     /**
-     * Get the subtotal amount.
+     * Calculate the tax amount.
+     *
+     * @param  bool  $afterDiscount  Optional. Whether to calculate tax after applying discounts. Defaults to false.
+     * @return float The tax amount.
      */
-    public function calculateSubtotal(): float
+    public function calculateTaxAmount(bool $afterDiscount = false): float
     {
-        return $this->calculateTotal();
+        $subTotal = $afterDiscount ? $this->calculateTotalAfterDiscount() : $this->calculateSubtotal();
+
+        return $subTotal * ($this->getGlobalTaxRate() / 100);
     }
 
     /**
-     * Get the tax amount.
+     * Calculate the savings amount.
+     *
+     * @param  float|null  $globalDiscount  Optional. The global discount rate. Defaults to null.
+     * @return float The savings amount.
      */
-    public function taxAmout(): float
+    public function calculateSavings(?float $globalDiscount = null): float
     {
-        return $this->calculateGlobalTax();
+        return $this->calculateTotalWithTaxes() * ($this->discountRate($globalDiscount) / 100);
     }
 
     /**
-     * Get the total amount (after discounts and taxes).
+     * Calculate the total amount after applying discounts.
+     *
+     * @param  float|null  $globalDiscount  Optional. The global discount rate. Defaults to null.
+     * @return float The total after applying discounts.
      */
-    public function calculateFinalTotal(bool $beforeTax = true): float
+    public function calculateTotalAfterDiscount(?float $globalDiscount = null): float
     {
+        $subTotal = $this->calculateSubtotal();
 
-        return $beforeTax ?
-            $this->calculateDiscountBeforeTax()
-            : $this->calculateDiscountAfterTax();
+        return $subTotal - ($subTotal * ($this->discountRate($globalDiscount) / 100));
+    }
+
+    /**
+     * Calculate the final total amount (after discounts and taxes).
+     *
+     * @return float The final total amount.
+     */
+    public function calculateFinalTotal(): float
+    {
+        $total = $this->calculateTotalWithTaxes();
+        $discountRate = $this->discountRate();
+        $discountedTotal = $total * (1 - $discountRate / 100);
+
+        return max(0, $discountedTotal);
+    }
+
+    /**
+     * Calculate and return various details related to the final total.
+     *
+     * @return array An array containing various details related to the final total.
+     */
+    public function calculateFinalTotalDetails(): array
+    {
+        return [
+            'total' => round($this->calculateFinalTotal(), 3),
+            'subtotal' => $this->calculateSubtotal(),
+            'tax_amount' => $this->calculateTaxAmount(),
+            'total_after_discount' => $this->calculateTotalAfterDiscount(),
+            'savings' => round($this->calculateSavings(), 3),
+            'tax_rate' => $this->getGlobalTaxRate(),
+            'discount_rate' => $this->discountRate(),
+        ];
     }
 }

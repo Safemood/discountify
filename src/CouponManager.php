@@ -103,7 +103,7 @@ class CouponManager
 
         $this->update($code, $coupon);
 
-        if ($userId) {
+        if ($userId !== null) {
             $this->trackUserForCoupon($coupon, $userId);
         }
 
@@ -168,6 +168,7 @@ class CouponManager
 
         if (
             $this->isCouponLimitedToUsers($coupon)
+            && $userId
             && !$this->isUserAllowedToUseCoupon($coupon, $userId)
         ) {
             return false;
@@ -277,7 +278,7 @@ class CouponManager
      * @param  array  $coupon  The coupon that was used.
      * @param  int  $userId  The ID of the user who used the coupon.
      */
-    protected function trackUserForCoupon(array $coupon, int $userId): void
+    protected function trackUserForCoupon(array $coupon, int|string $userId): void
     {
         $coupon['usedBy'][] = $userId;
         $this->update($coupon['code'], $coupon);

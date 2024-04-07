@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Safemood\Discountify;
 
 use Safemood\Discountify\Events\CouponAppliedEvent;
+use Safemood\Discountify\Exceptions\DuplicateCouponException;
 
 /**
  * Class CouponManager
@@ -22,7 +23,14 @@ class CouponManager
      */
     public function add(array $coupon): self
     {
-        $this->coupons[$coupon['code']] = $coupon;
+        $code = $coupon['code'];
+
+        if ($this->get($code) !== null) {
+
+            throw new DuplicateCouponException($code);
+        }
+
+        $this->coupons[$code] = $coupon;
 
         return $this;
     }
@@ -85,7 +93,7 @@ class CouponManager
      */
     public function apply(string $code, int|string|null $userId = null): bool
     {
-        if (! $this->verify($code, $userId)) {
+        if (!$this->verify($code, $userId)) {
             return false;
         }
 
@@ -116,7 +124,7 @@ class CouponManager
      */
     public function isCouponExpired(string $code): bool
     {
-        if (! array_key_exists('endDate', $this->coupons[$code])) {
+        if (!array_key_exists('endDate', $this->coupons[$code])) {
             return false;
         }
 
@@ -160,7 +168,7 @@ class CouponManager
 
         if (
             $this->isCouponLimitedToUsers($coupon)
-            && ! $this->isUserAllowedToUseCoupon($coupon, $userId)
+            && !$this->isUserAllowedToUseCoupon($coupon, $userId)
         ) {
             return false;
         }
@@ -173,7 +181,7 @@ class CouponManager
             return false;
         }
 
-        if (! $this->checkUsageLimit($coupon)) {
+        if (!$this->checkUsageLimit($coupon)) {
             $this->remove($code);
 
             return false;
@@ -260,7 +268,7 @@ class CouponManager
      */
     protected function checkUsageLimit(array $coupon): bool
     {
-        return ! isset($coupon['usageLimit']) || $coupon['usageLimit'] > 0;
+        return !isset($coupon['usageLimit']) || $coupon['usageLimit'] > 0;
     }
 
     /**

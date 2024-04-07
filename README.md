@@ -1,14 +1,6 @@
 
 # Laravel Discountify for dynamic discounts with custom conditions.
 
-### Disclaimer 🚨:
-
-**Please Note:** 🚧 This package currently contains some known bugs. I am actively working on resolving these issues for the upcoming release 1.5.0. In the meantime, please feel free to use the package at your own discretion.
-
-**Rerun for Quality Assurance:** 🔍 I will be thoroughly rerunning all use cases to ensure that the next release is bug-free.
-
-**Contributions Welcome:** 💡 If you encounter any bugs or have suggestions for improvements, please don't hesitate to report them. Additionally, feel free to submit a pull request if you'd like to contribute to fixing any issues.
-
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/safemood/discountify.svg?style=flat-square)](https://packagist.org/packages/safemood/discountify)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/safemood/discountify/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/safemood/discountify/actions?query=workflow%3Arun-tests+branch%3Amain)

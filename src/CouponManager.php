@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Safemood\Discountify;
 
+use Safemood\Discountify\Events\CouponAppliedEvent;
+
 /**
  * Class CouponManager
  * Manages coupons for discounts.
@@ -98,6 +100,10 @@ class CouponManager
         }
 
         $this->decrementUsageLimit($coupon);
+
+        if (config('discountify.fire_events')) {
+            event(new CouponAppliedEvent($coupon));
+        }
 
         return true;
     }

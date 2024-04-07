@@ -39,7 +39,7 @@ class ConditionMakeCommand extends GeneratorCommand
     {
         return file_exists($customPath = $this->laravel->basePath('stubs/condition.stub'))
             ? $customPath
-            : __DIR__.'/../../stubs/condition.stub';
+            : __DIR__ . '/../../stubs/condition.stub';
     }
 
     /**
@@ -62,7 +62,7 @@ class ConditionMakeCommand extends GeneratorCommand
 
         $customPath = config('discountify.condition_path');
 
-        return $customPath.'/'.class_basename($name).'.php';
+        return $customPath . '/' . class_basename($name) . '.php';
     }
 
     /**
@@ -91,7 +91,7 @@ class ConditionMakeCommand extends GeneratorCommand
         return $this->customizeStub($stub);
     }
 
-    protected function customizeStub($stub): string
+    protected function customizeStub(string $stub): string
     {
         $slug = $this->option('slug') ?? $this->getNameInput();
 

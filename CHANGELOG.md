@@ -14,7 +14,7 @@ All notable changes to `Discountify` will be documented in this file.
 * **DuplicateCouponException:** Implemented an exception for handling duplicate coupons.
 * **Test Coverage:** Increased test coverage (99.6%) provides strong validation for the functionality of the introduced methods.
 * **Type Coverage:** Achieving a robust type coverage of (98.8%) ensures the solidity and accuracy of the codebase, reinforcing its reliability and correctness.
-* **Spread Cheat:** I used a spread cheat (yes excel 😅 ) to validate all results [link](https://docs.google.com/spreadsheets/d/1ki9xv1ivADVrvEEVj4L7C20mFNuN9l_S/edit#gid=1398535476).
+* **Spread Cheat:** I used a spread cheat (yes excel 😅 ) to validate all results [link](https://docs.google.com/spreadsheets/d/1ki9xv1ivADVrvEEVj4L7C20mFNuN9l_S/edit#gid=1398535476) (The results are validated by an accounting expert).
 * **Manual Validation:** Manual calculations were performed on a variety of test data scenarios to ensure the accuracy of the package results.
 * Cross-checked the results with several websites to ensure accuracy:
 

@@ -71,6 +71,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Set the global discount.
+     *
+     * @param  float  $globalDiscount  The global discount percentage.
      */
     public function discount(float $globalDiscount): self
     {
@@ -80,7 +82,7 @@ class Discountify implements DiscountifyInterface
     }
 
     /**
-     *  calculate the total discount.
+     * Calculate the total discount rate percentage based on conditions.
      */
     public function conditionDiscount(): float
     {
@@ -122,6 +124,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Get the global discount percentage.
+     *
+     * @return float The global discount percentage.
      */
     public function getGlobalDiscount(): float
     {
@@ -130,6 +134,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Get the global tax rate.
+     *
+     * @return float The global tax rate.
      */
     public function getGlobalTaxRate(): float
     {
@@ -138,6 +144,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Get the items in the cart.
+     *
+     * @return array<mixed> The items in the cart.
      */
     public function getItems(): array
     {
@@ -146,6 +154,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Set the ConditionManager instance.
+     *
+     * @param  ConditionManager  $conditionManager  The ConditionManager instance to set.
      */
     public function setConditionManager(ConditionManager $conditionManager): self
     {
@@ -156,6 +166,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Set the CouponManager instance.
+     *
+     * @param  CouponManager  $couponManager  The CouponManager instance to set.
      */
     public function setCouponManager(CouponManager $couponManager): self
     {
@@ -166,6 +178,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Set the global discount.
+     *
+     * @param  float  $globalDiscount  The global discount percentage to set.
      */
     public function setGlobalDiscount(float $globalDiscount): self
     {
@@ -176,6 +190,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Set the global tax rate.
+     *
+     * @param  float  $globalTaxRate  The global tax rate to set.
      */
     public function setGlobalTaxRate(float $globalTaxRate): self
     {
@@ -186,6 +202,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Set the items in the cart.
+     *
+     * @param  array<mixed>  $items  The items to set in the cart.
      */
     public function setItems(array $items): self
     {
@@ -196,6 +214,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Calculate the subtotal of the cart.
+     *
+     * @return float The subtotal of the cart.
      */
     public function subtotal(): float
     {
@@ -204,6 +224,9 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Calculate the total tax of the cart.
+     *
+     * @param  float|null  $globalTaxRate  The global tax rate. Defaults to null.
+     * @return float The total tax of the cart.
      */
     public function tax(?float $globalTaxRate = null): float
     {
@@ -212,6 +235,9 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Calculate the total tax amount of the cart.
+     *
+     * @param  bool  $afterDiscount  Whether to calculate tax after applying discounts. Defaults to false.
+     * @return float The total tax amount of the cart.
      */
     public function taxAmount(bool $afterDiscount = false): float
     {
@@ -220,6 +246,9 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Calculate the savings of the cart.
+     *
+     * @param  float|null  $globalDiscount  The global discount percentage. Defaults to null.
+     * @return float The savings of the cart.
      */
     public function savings(?float $globalDiscount = null): float
     {
@@ -228,6 +257,8 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Calculate the final total of the cart.
+     *
+     * @return float The final total of the cart.
      */
     public function total(): float
     {
@@ -235,7 +266,9 @@ class Discountify implements DiscountifyInterface
     }
 
     /**
-     * Calculate the final total of the cart.
+     * Calculate the detailed final total of the cart.
+     *
+     * @return array The detailed final total of the cart.
      */
     public function totalDetailed(): array
     {
@@ -244,6 +277,9 @@ class Discountify implements DiscountifyInterface
 
     /**
      * Calculate the total with applied discount.
+     *
+     * @param  float|null  $globalDiscount  The global discount percentage. Defaults to null.
+     * @return float The total with applied discount.
      */
     public function totalWithDiscount(?float $globalDiscount = null): float
     {

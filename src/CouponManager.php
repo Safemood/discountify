@@ -6,6 +6,7 @@ namespace Safemood\Discountify;
 
 /**
  * Class CouponManager
+ * Manages coupons for discounts.
  */
 class CouponManager
 {
@@ -14,6 +15,7 @@ class CouponManager
     /**
      * Add a coupon to the manager.
      *
+     * @param  array  $coupon  The coupon details to add.
      * @return $this
      */
     public function add(array $coupon): self
@@ -26,6 +28,7 @@ class CouponManager
     /**
      * Remove a coupon from the manager.
      *
+     * @param  string  $code  The code of the coupon to remove.
      * @return $this
      */
     public function remove(string $code): self
@@ -38,6 +41,8 @@ class CouponManager
     /**
      * Update a coupon in the manager.
      *
+     * @param  string  $code  The code of the coupon to update.
+     * @param  array  $updatedCoupon  The updated coupon details.
      * @return $this
      */
     public function update(string $code, array $updatedCoupon): self
@@ -49,6 +54,8 @@ class CouponManager
 
     /**
      * Get the total discount applied by coupons.
+     *
+     * @return float The total discount applied.
      */
     public function couponDiscount(): float
     {
@@ -58,6 +65,9 @@ class CouponManager
 
     /**
      * Get a coupon by code.
+     *
+     * @param  string  $code  The code of the coupon to retrieve.
+     * @return array|null The coupon details, or null if not found.
      */
     public function get(string $code): ?array
     {
@@ -66,6 +76,10 @@ class CouponManager
 
     /**
      * Apply a coupon to an order.
+     *
+     * @param  string  $code  The code of the coupon to apply.
+     * @param  int|string|null  $userId  The user ID associated with the coupon application.
+     * @return bool True if the coupon was successfully applied, otherwise false.
      */
     public function apply(string $code, int|string|null $userId = null): bool
     {
@@ -90,6 +104,9 @@ class CouponManager
 
     /**
      * Check if a coupon is expired.
+     *
+     * @param  string  $code  The code of the coupon to check.
+     * @return bool True if the coupon is expired, otherwise false.
      */
     public function isCouponExpired(string $code): bool
     {
@@ -104,6 +121,8 @@ class CouponManager
 
     /**
      * Get the list of all coupons.
+     *
+     * @return array All coupons stored in the manager.
      */
     public function all(): array
     {
@@ -112,6 +131,10 @@ class CouponManager
 
     /**
      * Verify if a coupon is valid for use.
+     *
+     * @param  string  $code  The code of the coupon to verify.
+     * @param  int|string|null  $userId  The user ID associated with the coupon verification.
+     * @return bool True if the coupon is valid, otherwise false.
      */
     public function verify(string $code, int|string|null $userId = null): bool
     {
@@ -154,7 +177,9 @@ class CouponManager
     }
 
     /**
-     * Remove an applied coupon from the list of applied coupons.
+     * Remove applied coupons from the list of applied coupons.
+     *
+     * @return $this
      */
     public function removeAppliedCoupons(): self
     {
@@ -168,6 +193,8 @@ class CouponManager
 
     /**
      * Clear all applied coupons.
+     *
+     * @return $this
      */
     public function clearAppliedCoupons(): self
     {
@@ -181,6 +208,8 @@ class CouponManager
 
     /**
      * Get an array of applied coupons.
+     *
+     * @return array The list of applied coupons.
      */
     public function appliedCoupons(): array
     {
@@ -192,6 +221,8 @@ class CouponManager
 
     /**
      * Clear all coupons.
+     *
+     * @return $this
      */
     public function clear(): self
     {
@@ -202,6 +233,8 @@ class CouponManager
 
     /**
      * Decrement the usage limit of a coupon if applicable.
+     *
+     * @param  array  $coupon  The coupon to decrement the usage limit for.
      */
     protected function decrementUsageLimit(array $coupon): void
     {
@@ -215,6 +248,9 @@ class CouponManager
 
     /**
      * Check if the coupon usage limit has been reached.
+     *
+     * @param  array  $coupon  The coupon to check the usage limit for.
+     * @return bool True if the usage limit has not been reached, otherwise false.
      */
     protected function checkUsageLimit(array $coupon): bool
     {
@@ -223,6 +259,9 @@ class CouponManager
 
     /**
      * Track the user who used the coupon.
+     *
+     * @param  array  $coupon  The coupon that was used.
+     * @param  int  $userId  The ID of the user who used the coupon.
      */
     protected function trackUserForCoupon(array $coupon, int $userId): void
     {
@@ -230,21 +269,47 @@ class CouponManager
         $this->update($coupon['code'], $coupon);
     }
 
+    /**
+     * Check if the coupon is single-use.
+     *
+     * @param  array  $coupon  The coupon to check.
+     * @return bool True if the coupon is single-use, otherwise false.
+     */
     protected function isCouponSingleUse(array $coupon): bool
     {
         return isset($coupon['singleUse']) && $coupon['singleUse'] === true;
     }
 
+    /**
+     * Check if the coupon has already been used by the given user.
+     *
+     * @param  array  $coupon  The coupon to check.
+     * @param  int|string  $userId  The ID of the user to check.
+     * @return bool True if the coupon has already been used by the user, otherwise false.
+     */
     protected function isCouponAlreadyUsedByUser(array $coupon, int|string $userId): bool
     {
         return isset($coupon['usedBy']) && in_array($userId, $coupon['usedBy'], true);
     }
 
+    /**
+     * Check if the coupon is limited to specific users.
+     *
+     * @param  array  $coupon  The coupon to check.
+     * @return bool True if the coupon is limited to specific users, otherwise false.
+     */
     protected function isCouponLimitedToUsers(array $coupon): bool
     {
         return isset($coupon['userIds']);
     }
 
+    /**
+     * Check if the user is allowed to use the coupon.
+     *
+     * @param  array  $coupon  The coupon to check.
+     * @param  int|string  $userId  The ID of the user to check.
+     * @return bool True if the user is allowed to use the coupon, otherwise false.
+     */
     protected function isUserAllowedToUseCoupon(array $coupon, int|string $userId): bool
     {
         return isset($coupon['userIds']) && in_array($userId, $coupon['userIds'], true);

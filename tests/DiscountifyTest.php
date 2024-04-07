@@ -165,6 +165,40 @@ it('can get subtotal', function () {
     expect($subtotal)->toBe(floatval(200));
 });
 
+it('adds multiple conditions correctly', function () {
+
+    $conditions = [
+        ['slug' => 'condition1', 'condition' => fn () => true, 'discount' => 10],
+        ['slug' => 'condition2', 'condition' => fn () => false, 'discount' => 20],
+    ];
+
+    $this->discountify->add($conditions);
+
+    expect($this->discountify->conditions()->getConditions())->toBe($conditions);
+});
+
+it('defines a condition correctly', function () {
+    $expectedCondition = [
+        'slug' => 'more_than_2_products_10',
+        'condition' => fn (array $items) => count($items) > 2,
+        'discount' => 10,
+    ];
+
+    $this->discountify->define('more_than_2_products_10', fn (array $items) => count($items) > 2, 10);
+
+    expect($this->discountify->conditions()->getConditions()[0]['slug'])->toBe($expectedCondition['slug']);
+});
+
+it('defines a condition based on a boolean value correctly', function () {
+
+    $expectedCondition = ['slug' => 'more_than_2_products_11', 'condition' => true, 'discount' => 10];
+
+    $this->discountify->defineIf('more_than_2_products_11', true, 10);
+
+    expect($this->discountify->conditions()->getConditions()[0]['slug'])
+        ->toBe($expectedCondition['slug']);
+});
+
 it('can use Condition facade', function () {
 
     Condition::define('more_than_2_products_10', fn (array $items) => count($items) > 2, 10)
@@ -222,6 +256,44 @@ it('calculates total with discount using custom field names from configuration',
     $totalWithDiscount = $this->discountify->totalWithDiscount(50);
 
     expect($totalWithDiscount)->toBe(floatval(30));
+});
+
+it('returns the value of a dynamic field for a given items', function () {
+
+    $items = [
+        'cost' => 10,
+        'amount' => 5,
+    ];
+
+    $this->discountify->setItems($items);
+
+    $dynamicFields = [
+        'price' => 'cost',
+        'quantity' => 'amount',
+    ];
+
+    $this->discountify->setFields($dynamicFields);
+
+    $priceValue = $this->discountify->getField($items, 'price');
+    $quantityValue = $this->discountify->getField($items, 'quantity');
+    $unknownField = $this->discountify->getField($items, 'unknown');
+
+    expect($priceValue)->toBe($items['cost']);
+    expect($quantityValue)->toBe($items['amount']);
+    expect($unknownField)->toBe(null);
+});
+
+it('returns all dynamic field mappings', function () {
+    $dynamicFields = [
+        'price' => 'cost',
+        'quantity' => 'qte',
+    ];
+
+    $this->discountify->setFields($dynamicFields);
+
+    $fields = $this->discountify->getFields();
+
+    expect($fields)->toBe($dynamicFields);
 });
 
 it('calculates total with discount using dynamically set custom field names', function () {
@@ -331,6 +403,188 @@ it('does not fire the DiscountAppliedEvent when event firing is disabled', funct
     DiscountifyFacade::total();
 
     Event::assertNotDispatched(DiscountAppliedEvent::class);
+});
+
+it('removes a coupon from the manager', function () {
+
+    $coupon = [
+        'code' => 'WELCOME20',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    $this->discountify->addCoupon($coupon);
+
+    $this->discountify->removeCoupon($coupon['code']);
+
+    expect($this->discountify->getCoupon($coupon['code']))->toBeNull();
+});
+
+it('removes applied coupons correctly', function () {
+
+    $coupon1 = [
+        'code' => 'WELCOME20',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    $coupon2 = [
+        'code' => 'WELCOME21',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+    $this->discountify->coupons()->add($coupon1);
+    $this->discountify->coupons()->add($coupon2);
+
+    $this->discountify->applyCoupon('WELCOME20');
+    $this->discountify->applyCoupon('WELCOME21');
+
+    expect($this->discountify->coupons()->appliedCoupons())->not->toBeEmpty();
+
+    $this->discountify->removeAppliedCoupons();
+
+    expect($this->discountify->coupons()->appliedCoupons())->toBeEmpty();
+});
+
+it('returns an array of applied coupons correctly', function () {
+
+    $coupon1 = [
+        'code' => 'WELCOME20',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    $coupon2 = [
+        'code' => 'WELCOME21',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    $this->discountify->coupons()->add($coupon1);
+    $this->discountify->coupons()->add($coupon2);
+
+    $this->discountify->applyCoupon('WELCOME20');
+
+    $appliedCoupons = $this->discountify->getAppliedCoupons();
+
+    expect($appliedCoupons)->toHaveCount(1);
+    expect($appliedCoupons[0]['code'])->toBe($coupon1['code']);
+    expect($appliedCoupons[0]['applied'])->toBeTrue();
+});
+
+it('clears all coupons correctly', function () {
+    $coupon1 = [
+        'code' => 'WELCOME20',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    $coupon2 = [
+        'code' => 'WELCOME21',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    $this->discountify->coupons()->add($coupon1);
+    $this->discountify->coupons()->add($coupon2);
+
+    $this->discountify->applyCoupon('WELCOME20');
+
+    $this->discountify->clearCoupons();
+    $coupons = $this->discountify->coupons()->all();
+
+    expect($coupons)->toBeEmpty();
+});
+
+it('clears all applied coupons correctly', function () {
+
+    $coupon1 = [
+        'code' => 'WELCOME20',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    $coupon2 = [
+        'code' => 'WELCOME21',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+    $this->discountify->coupons()->add($coupon1);
+    $this->discountify->coupons()->add($coupon2);
+
+    $this->discountify->applyCoupon('WELCOME20');
+    $this->discountify->applyCoupon('WELCOME21');
+
+    expect($this->discountify->coupons()->appliedCoupons())->not->toBeEmpty();
+
+    $this->discountify->clearAppliedCoupons();
+
+    expect($this->discountify->coupons()->appliedCoupons())->toBeEmpty();
+});
+
+it('calculates the total discount applied by coupons correctly', function () {
+
+    $coupon1 = [
+        'code' => 'WELCOME20',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    $coupon2 = [
+        'code' => 'WELCOME21',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+    $this->discountify->coupons()->add($coupon1);
+    $this->discountify->coupons()->add($coupon2);
+
+    $this->discountify->applyCoupon('WELCOME20');
+    $this->discountify->applyCoupon('WELCOME21');
+
+    $totalDiscount = $this->discountify->getCouponDiscount();
+
+    expect($totalDiscount)->toEqual(40);
+});
+
+it('calculates the global discount amount correctly', function () {
+
+    $globalDiscountPercentage = 10;
+
+    $this->discountify->setItems($this->items)
+        ->setGlobalDiscount($globalDiscountPercentage);
+
+    $globalDiscountAmount = $this->discountify->calculateGlobalDiscount();
+
+    $expectedGlobalDiscountAmount = $this->discountify->calculateSubtotal() * ($globalDiscountPercentage / 100);
+
+    expect($globalDiscountAmount)->toBe($expectedGlobalDiscountAmount);
+});
+
+it('calculates the subtotal amount correctly', function () {
+
+    $items = [
+        ['price' => 10, 'quantity' => 2],
+        ['price' => 5, 'quantity' => 3],
+    ];
+
+    $this->discountify->setItems($items);
+
+    $subtotal = $this->discountify->calculateSubtotal();
+
+    $expectedSubtotal = (10 * 2) + (5 * 3);
+
+    expect($subtotal)->toEqual($expectedSubtotal);
 });
 
 it('calculates total with coupon discounts applied', function () {

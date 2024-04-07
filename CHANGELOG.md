@@ -7,9 +7,9 @@ All notable changes to `Discountify` will be documented in this file.
 ## What's Changed
 
 * **Logic and Calculation Bug Fixes:** All logic and calculation bugs have been addressed and resolved to enhance the reliability and accuracy of the package.
-* `totalDetailed()`: This method calculates the total with a detailed breakdown.
-* `calculateTaxAmount()`: This method now calculates the tax amount, with an optional parameter to toggle between before and after discount (default is before discount).
-* `savings()`: This method calculates the amount saved.
+* Added `totalDetailed()`: This method calculates the total with a detailed breakdown.
+* Added `savings()`: This method calculates the amount saved.
+* Updated `calculateTaxAmount()`: This method now calculates the tax amount, with an optional parameter to toggle between before and after discount (default is before discount).
 * **CouponAppliedEvent:** Added an event for when a coupon is applied.
 * **DuplicateCouponException:** Implemented an exception for handling duplicate coupons.
 * **Test Coverage:** Increased test coverage (99.6%) provides strong validation for the functionality of the introduced methods.

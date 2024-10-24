@@ -26,8 +26,8 @@ beforeEach(function () {
     ];
     $this->stateFilePath = workbench_path('app/test_state.json');
     config(['discountify.state_file_path' => $this->stateFilePath]);
-    $this->conditionManager = new ConditionManager();
-    $this->couponManager = new CouponManager();
+    $this->conditionManager = new ConditionManager;
+    $this->couponManager = new CouponManager;
     $this->discountify = new Discountify(
         $this->conditionManager,
         $this->couponManager,
@@ -64,7 +64,7 @@ it('can set and get global discount', function () {
 
 it('sets the ConditionManager instance', function () {
 
-    $expextedResult = new ConditionManager();
+    $expextedResult = new ConditionManager;
     $this->discountify->setConditionManager($expextedResult);
 
     $conditionManager = $this->discountify->conditions();
@@ -75,7 +75,7 @@ it('sets the ConditionManager instance', function () {
 
 it('sets the CouponManager instance', function () {
 
-    $expextedResult = new CouponManager();
+    $expextedResult = new CouponManager;
     $this->discountify->setCouponManager($expextedResult);
 
     $couponManager = $this->discountify->coupons();

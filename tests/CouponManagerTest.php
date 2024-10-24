@@ -11,7 +11,7 @@ use function Orchestra\Testbench\workbench_path;
 beforeEach(function () {
     $this->stateFilePath = workbench_path('app/test_state.json');
     config(['discountify.state_file_path' => $this->stateFilePath]);
-    $this->couponManager = new CouponManager();
+    $this->couponManager = new CouponManager;
 });
 
 afterEach(function () {
@@ -423,7 +423,7 @@ it('applies a single-use coupon and prevents reapplication', function () {
 
     Coupon::apply('SINGLEUSE50');
 
-    $this->couponManager = new CouponManager();
+    $this->couponManager = new CouponManager;
 
     $secondApplication = $this->couponManager->apply('SINGLEUSE50');
 
@@ -447,13 +447,13 @@ it('It applies a limited-use coupon and retains its state across instances',
 
         expect($firstApplication)->toBeTrue();
 
-        $this->couponManager = new CouponManager();
+        $this->couponManager = new CouponManager;
 
         $secondApplication = $this->couponManager->apply('LIMITED10');
 
         expect($secondApplication)->toBeTrue();
 
-        $this->couponManager = new CouponManager();
+        $this->couponManager = new CouponManager;
 
         $lastApplication = $this->couponManager->apply('LIMITED10');
 

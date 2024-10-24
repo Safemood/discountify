@@ -107,7 +107,7 @@ class ConditionManager implements ConditionManagerInterface
                 $class = $namespace.$file->getBasename('.php');
 
                 if (class_exists($class)) {
-                    $conditionInstance = new $class();
+                    $conditionInstance = new $class;
                     $skipping = property_exists($conditionInstance, 'skip') && $conditionInstance->skip;
 
                     if (method_exists($conditionInstance, '__invoke') && ! $skipping) {

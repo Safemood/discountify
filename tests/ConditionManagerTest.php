@@ -10,7 +10,7 @@ use function Orchestra\Testbench\workbench_path;
 
 beforeEach(function () {
 
-    $this->conditionManger = new ConditionManager();
+    $this->conditionManger = new ConditionManager;
 });
 
 it('can add conditions using ConditionManager', function () {

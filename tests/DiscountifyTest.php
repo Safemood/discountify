@@ -24,13 +24,20 @@ beforeEach(function () {
         ['id' => '1', 'quantity' => 2, 'price' => 50],
         ['id' => '2', 'quantity' => 1, 'price' => 100],
     ];
-
+    $this->stateFilePath = workbench_path('app/test_state.json');
+    config(['discountify.state_file_path' => $this->stateFilePath]);
     $this->conditionManager = new ConditionManager();
     $this->couponManager = new CouponManager();
     $this->discountify = new Discountify(
         $this->conditionManager,
         $this->couponManager,
     );
+});
+
+afterEach(function () {
+    if (File::exists($this->stateFilePath)) {
+        File::delete($this->stateFilePath);
+    }
 });
 
 it('can set items', function () {

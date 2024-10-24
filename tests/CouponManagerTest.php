@@ -6,9 +6,18 @@ use Safemood\Discountify\CouponManager;
 use Safemood\Discountify\Exceptions\DuplicateCouponException;
 use Safemood\Discountify\Facades\Coupon;
 
-beforeEach(function () {
+use function Orchestra\Testbench\workbench_path;
 
+beforeEach(function () {
+    $this->stateFilePath = workbench_path('app/test_state.json');
+    config(['discountify.state_file_path' => $this->stateFilePath]);
     $this->couponManager = new CouponManager();
+});
+
+afterEach(function () {
+    if (File::exists($this->stateFilePath)) {
+        File::delete($this->stateFilePath);
+    }
 });
 
 it('adds, retrieves, updates, and removes coupons', function () {
@@ -399,3 +408,54 @@ it('removes an applied coupon from the list of applied coupons via the facade', 
     Coupon::removeAppliedCoupons();
     expect(Coupon::get('DISCOUNT10'))->toBeNull();
 });
+
+it('applies a single-use coupon and prevents reapplication', function () {
+
+    $coupon = [
+        'code' => 'SINGLEUSE50',
+        'discount' => 50,
+        'singleUse' => true,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    Coupon::add($coupon);
+
+    Coupon::apply('SINGLEUSE50');
+
+    $this->couponManager = new CouponManager();
+
+    $secondApplication = $this->couponManager->apply('SINGLEUSE50');
+
+    expect($secondApplication)->toBeFalse();
+});
+
+it('It applies a limited-use coupon and retains its state across instances',
+    function () {
+
+        $coupon = [
+            'code' => 'LIMITED10',
+            'discount' => 10,
+            'usageLimit' => 2,
+            'startDate' => now(),
+            'endDate' => now()->addWeek(),
+        ];
+
+        Coupon::add($coupon);
+
+        $firstApplication = Coupon::apply('LIMITED10');
+
+        expect($firstApplication)->toBeTrue();
+
+        $this->couponManager = new CouponManager();
+
+        $secondApplication = $this->couponManager->apply('LIMITED10');
+
+        expect($secondApplication)->toBeTrue();
+
+        $this->couponManager = new CouponManager();
+
+        $lastApplication = $this->couponManager->apply('LIMITED10');
+
+        expect($lastApplication)->toBeFalse();
+    });

@@ -10,6 +10,5 @@ class DiscountAppliedEvent
         public string $slug,
         public float $discount,
         public mixed $condition
-    ) {
-    }
+    ) {}
 }

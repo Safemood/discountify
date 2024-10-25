@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Safemood\Discountify;
 
+use Safemood\Discountify\Concerns\HasStateTracking;
 use Safemood\Discountify\Events\CouponAppliedEvent;
 use Safemood\Discountify\Exceptions\DuplicateCouponException;
 
@@ -13,7 +14,16 @@ use Safemood\Discountify\Exceptions\DuplicateCouponException;
  */
 class CouponManager
 {
+    use HasStateTracking;
+
     protected array $coupons = [];
+
+    public function __construct()
+    {
+        $this->stateFilePath = config('discountify.state_file_path');
+        $this->ensureStateFileExists();
+        $this->loadState();
+    }
 
     /**
      * Add a coupon to the manager.
@@ -32,6 +42,8 @@ class CouponManager
 
         $this->coupons[$code] = $coupon;
 
+        $this->saveState();
+
         return $this;
     }
 
@@ -44,6 +56,8 @@ class CouponManager
     public function remove(string $code): self
     {
         unset($this->coupons[$code]);
+
+        $this->saveState();
 
         return $this;
     }
@@ -58,6 +72,8 @@ class CouponManager
     public function update(string $code, array $updatedCoupon): self
     {
         $this->coupons[$code] = $updatedCoupon;
+
+        $this->saveState();
 
         return $this;
     }
@@ -112,6 +128,8 @@ class CouponManager
         if (config('discountify.fire_events')) {
             event(new CouponAppliedEvent($coupon));
         }
+
+        $this->saveState();
 
         return true;
     }
@@ -188,6 +206,8 @@ class CouponManager
             return false;
         }
 
+        $this->saveState();
+
         return true;
     }
 
@@ -203,6 +223,8 @@ class CouponManager
                 return $coupon['applied'] ?? false;
             })->toArray();
 
+        $this->saveState();
+
         return $this;
     }
 
@@ -217,6 +239,8 @@ class CouponManager
             ->reject(function (array $coupon) {
                 return $coupon['applied'] ?? false;
             })->toArray();
+
+        $this->saveState();
 
         return $this;
     }
@@ -242,6 +266,8 @@ class CouponManager
     public function clear(): self
     {
         $this->coupons = [];
+
+        $this->saveState();
 
         return $this;
     }

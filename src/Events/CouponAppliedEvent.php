@@ -8,6 +8,5 @@ class CouponAppliedEvent
 {
     public function __construct(
         public array $coupon,
-    ) {
-    }
+    ) {}
 }

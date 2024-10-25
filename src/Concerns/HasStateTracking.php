@@ -29,7 +29,7 @@ trait HasStateTracking
         }
 
         if (! File::exists($this->stateFilePath)) {
-            File::put($this->stateFilePath, json_encode([]));
+            File::put($this->stateFilePath, '{}');
         }
     }
 
@@ -56,7 +56,12 @@ trait HasStateTracking
         // Convert Carbon date instances to ISO strings before saving
         $couponsToSave = array_map([$this, 'convertDatesToIso'], $this->coupons);
 
-        File::put($this->stateFilePath, json_encode($couponsToSave));
+        $jsonContents = json_encode($couponsToSave);
+        if ($jsonContents === false) {
+            throw new \RuntimeException('Failed to encode state to JSON: '.json_last_error_msg());
+        }
+
+        File::put($this->stateFilePath, $jsonContents);
     }
 
     /**

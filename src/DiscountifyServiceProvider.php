@@ -23,7 +23,7 @@ class DiscountifyServiceProvider extends PackageServiceProvider
     {
 
         $this->app->singleton(ConditionManager::class, function () {
-            $conditionManager = new ConditionManager();
+            $conditionManager = new ConditionManager;
 
             $conditionManager->discover(
                 config('discountify.condition_namespace'),
@@ -34,7 +34,7 @@ class DiscountifyServiceProvider extends PackageServiceProvider
         });
 
         $this->app->singleton(CouponManager::class, function () {
-            return new CouponManager();
+            return new CouponManager;
         });
 
         $this->app->singleton(Discountify::class, function (Application $app) {

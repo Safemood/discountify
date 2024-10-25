@@ -10,7 +10,7 @@ use function Orchestra\Testbench\workbench_path;
 beforeEach(function () {
     $this->stateFilePath = workbench_path('app/test_state.json');
     config(['discountify.state_file_path' => $this->stateFilePath]);
-    $this->couponManager = new CouponManager();
+    $this->couponManager = new CouponManager;
 });
 
 afterEach(function () {
@@ -30,7 +30,7 @@ it('saves and loads coupons from the state file correctly', function () {
 
     $coupons = $this->couponManager->all();
 
-    $this->couponManager = new CouponManager();
+    $this->couponManager = new CouponManager;
 
     expect($this->couponManager->all())
         ->toEqual($coupons);

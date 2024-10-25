@@ -89,7 +89,7 @@ trait HasCalculations
                 $price = $this->getField($item, 'price');
 
                 if ($quantity === 0) {
-                    throw new ZeroQuantityException();
+                    throw new ZeroQuantityException;
                 }
 
                 return $total + ($quantity * $price);

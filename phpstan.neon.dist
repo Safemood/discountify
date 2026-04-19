@@ -12,5 +12,4 @@ parameters:
     checkModelProperties: true
     ignoreErrors:
         - identifier: missingType.iterableValue
-        - message: "/Called 'env' outside of the config directory/"
-        - message: "/which returns null when the config is cached/"
+        - message: "#Called 'env' outside of the config directory which returns null when the config is cached, use 'config'.#"

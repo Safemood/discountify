@@ -17,7 +17,6 @@ use Safemood\Discountify\Facades\Coupon;
 use Safemood\Discountify\Facades\Discountify as DiscountifyFacade;
 
 use function Orchestra\Testbench\workbench_path;
-use function Pest\Laravel\artisan;
 
 beforeEach(function () {
     $this->items = [

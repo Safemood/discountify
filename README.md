@@ -47,7 +47,8 @@ return [
     ],
     'global_discount' => 0,
     'global_tax_rate' => 0,
-    'fire_events' => env('DISCOUNTIFY_FIRE_EVENTS', true)
+    'fire_events' => env('DISCOUNTIFY_FIRE_EVENTS', true),
+    'state_file_path' => env('DISCOUNTIFY_STATE_FILE_PATH', storage_path('app/discountify/coupons.json')),
 ];
 ```
 
@@ -146,8 +147,8 @@ return [
     'condition_namespace' => 'App\\Conditions',
     'condition_path' => app_path('Conditions'),
     'fields' => [
-        'price' => 'price',
-        'quantity' => 'quantity',
+        'price' => 'amount',
+        'quantity' => 'qty',
     ],
     'global_discount' => 0,
     'global_tax_rate' => 0,
@@ -235,7 +236,7 @@ Condition::add([
 
 ### Event Tracking
 
-You can listen for the `DiscountAppliedEvent` and `CouponAppliedEvent` using Laravel's Event system. 
+You can listen for the `DiscountAppliedEvent` and `CouponAppliedEvent` using Laravel's Event system.
 
 
 Ensure the following configuration in the discountify.php file:
@@ -243,12 +244,13 @@ Ensure the following configuration in the discountify.php file:
 // config/discountify.php
 'fire_events' => env('DISCOUNTIFY_FIRE_EVENTS', true) // Toggle event dispatching
 ```
- 
-```php
-// app/Providers/EventServiceProvider.php
 
+Register event listeners in your `AppServiceProvider` (Laravel 11+) or `EventServiceProvider` (Laravel 10):
+
+```php
 use Illuminate\Support\Facades\Event;
 use Safemood\Discountify\Events\DiscountAppliedEvent;
+use Safemood\Discountify\Events\CouponAppliedEvent;
 
 public function boot(): void
 {
@@ -258,14 +260,15 @@ public function boot(): void
         // dd($event);
     });
 
-    Event::listen(function (CouponAppliedEvent $event) { // Added
+    Event::listen(function (CouponAppliedEvent $event) {
         // Your event handling logic for CouponAppliedEvent here
         // Example: Log coupon usage
         // dd($event);
     });
 }
 ```
-Check the [Laravel Events documentation](https://laravel.com/docs/10.x/events#registering-events-and-listeners) for more details.
+
+Check the [Laravel Events documentation](https://laravel.com/docs/events#registering-events-and-listeners) for more details.
 
 ### Coupon Based Discounts
 

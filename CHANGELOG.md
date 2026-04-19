@@ -2,6 +2,20 @@
 
 All notable changes to `Discountify` will be documented in this file.
 
+## 1.5.1 - 2024-10-25
+
+## What's Changed
+* Update README.md - fix spelling mistake by @jackbayliss in https://github.com/Safemood/discountify/pull/24
+* Bump aglipanci/laravel-pint-action from 2.3.1 to 2.4 by @dependabot in https://github.com/Safemood/discountify/pull/25
+* Bump dependabot/fetch-metadata from 2.0.0 to 2.1.0 by @dependabot in https://github.com/Safemood/discountify/pull/26
+* Bump dependabot/fetch-metadata from 2.1.0 to 2.2.0 by @dependabot in https://github.com/Safemood/discountify/pull/28
+* bug fix state management issues for single-use and usage-limited coupons across instances by @Safemood in https://github.com/Safemood/discountify/pull/32
+
+## New Contributors
+* @jackbayliss made their first contribution in https://github.com/Safemood/discountify/pull/24
+
+**Full Changelog**: https://github.com/Safemood/discountify/compare/1.5.0...1.5.1
+
 ## 1.5.0 - 2024-04-07
 
 ## What's Changed

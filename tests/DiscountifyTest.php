@@ -372,7 +372,7 @@ it('can create a new condition class', function () {
 
     $filePath = "$testConditionsPath/{$class}.php";
 
-    artisan('discountify:condition', [
+    $this->artisan('discountify:condition', [
         'name' => $class,
         '--slug' => 'CustomSlug',
         '--discount' => 15,

@@ -98,7 +98,7 @@ class ConditionMakeCommand extends GeneratorCommand
 
         return str_replace(['{{ slug }}', '{{ discount }}'], [
             str()->snake($slug, '_'),
-            $this->option('discount'),
+            (string) $this->option('discount'),
         ], $stub);
     }
 }

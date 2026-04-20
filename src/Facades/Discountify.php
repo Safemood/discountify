@@ -6,6 +6,7 @@ namespace Safemood\Discountify\Facades;
 
 use Illuminate\Support\Facades\Facade;
 use Safemood\Discountify\ConditionManager;
+use Safemood\Discountify\CouponManager;
 
 /**
  * Class Discountify

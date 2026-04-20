@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Safemood\Discountify\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Safemood\Discountify\CouponManager;
 
 /**
  * Class Coupon

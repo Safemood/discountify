@@ -2,6 +2,11 @@
 
 All notable changes to `Discountify` will be documented in this file.
 
+## 1.5.2 - 2026-04-20
+
+## What's Changed
+* Fix critical bug: coupons applied globally instead of per user by @Safemood in https://github.com/Safemood/discountify/pull/XX
+
 ## 1.5.1 - 2024-10-25
 
 ## What's Changed

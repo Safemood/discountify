@@ -14,7 +14,7 @@ use Safemood\Discountify\CouponManager;
  * @method static \Safemood\Discountify\Discountify discount(float $globalDiscount)
  * @method static array getConditions()
  * @method static ConditionManager conditions()
- * @method static CouponManager coupons()
+ * @method static \Safemood\Discountify\CouponManager coupons()
  * @method static int getGlobalDiscount()
  * @method static int getGlobalTaxRate()
  * @method static array getItems()
@@ -26,6 +26,7 @@ use Safemood\Discountify\CouponManager;
  * @method static \Safemood\Discountify\Discountify setGlobalDiscount(int $globalDiscount)
  * @method static \Safemood\Discountify\Discountify setGlobalTaxRate(float $globalTaxRate)
  * @method static \Safemood\Discountify\Discountify setItems(array $items)
+ * @method static \Safemood\Discountify\Discountify setUserId(int|string|null $userId)
  *
  * @see \Safemood\Discountify\Discountify
  */

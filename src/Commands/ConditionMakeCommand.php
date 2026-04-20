@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Safemood\Discountify\Commands;
 
 use Illuminate\Console\GeneratorCommand;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -82,7 +83,7 @@ class ConditionMakeCommand extends GeneratorCommand
      *
      * @param  string  $name
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function buildClass($name): string
     {
@@ -96,7 +97,7 @@ class ConditionMakeCommand extends GeneratorCommand
         $slug = $this->option('slug') ?? $this->getNameInput();
         $discount = $this->option('discount');
 
-        if (! is_scalar($discount)) {
+        if (! is_scalar($discount) || $discount === '') {
             $discount = 0;
         }
 

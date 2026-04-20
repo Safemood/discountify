@@ -17,7 +17,6 @@ use Safemood\Discountify\Facades\Coupon;
 use Safemood\Discountify\Facades\Discountify as DiscountifyFacade;
 
 use function Orchestra\Testbench\workbench_path;
-use function Pest\Laravel\artisan;
 
 beforeEach(function () {
     $this->items = [
@@ -372,7 +371,7 @@ it('can create a new condition class', function () {
 
     $filePath = "$testConditionsPath/{$class}.php";
 
-    artisan('discountify:condition', [
+    $this->artisan('discountify:condition', [
         'name' => $class,
         '--slug' => 'CustomSlug',
         '--discount' => 15,
@@ -798,6 +797,38 @@ it('applies a restricted user coupon', function () {
         ->total();
 
     expect($discountedTotal)->toBe(floatval(160));
+});
+
+it('only applies a coupon to the specified user and does not discount other users', function () {
+    $coupon = [
+        'code' => 'USER_SPECIFIC20',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    $this->discountify->addCoupon($coupon);
+    $this->discountify->applyCoupon('USER_SPECIFIC20', 1);
+
+    $userOneTotal = $this->discountify->setUserId(1)
+        ->setItems($this->items)
+        ->totalDetailed();
+
+    expect($userOneTotal['discount_rate'])->toBe(20.0);
+    expect($userOneTotal['total_after_discount'])->toBe(160.0);
+
+    $userTwoTotal = $this->discountify->setUserId(2)
+        ->setItems($this->items)
+        ->totalDetailed();
+
+    expect($userTwoTotal['discount_rate'])->toBe(0.0);
+    expect($userTwoTotal['total_after_discount'])->toBe(200.0);
+
+    $anonymousTotal = $this->discountify->setUserId(null)
+        ->setItems($this->items)
+        ->totalDetailed();
+
+    expect($anonymousTotal['discount_rate'])->toBe(0.0);
 });
 
 it('applies a limited usage coupon', function () {

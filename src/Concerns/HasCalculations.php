@@ -49,7 +49,7 @@ trait HasCalculations
     {
         $globalDiscount = $globalDiscount ?? $this->getGlobalDiscount();
 
-        $couponDiscount = $this->couponManager->couponDiscount();
+        $couponDiscount = $this->couponManager->couponDiscount($this->userId ?? null);
         $conditionDiscount = $this->conditionDiscount();
 
         $totalDiscountRate = $globalDiscount + $conditionDiscount + $couponDiscount;

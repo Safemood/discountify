@@ -40,7 +40,10 @@ trait HasCoupons
     {
         $this->coupons()->apply($code, $userId);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> b4023fdda849637445f03e3a234ad1f003b5f972
         if ($userId) {
             $this->setUserId($userId);
         }

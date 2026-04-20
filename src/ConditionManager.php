@@ -130,7 +130,7 @@ class ConditionManager implements ConditionManagerInterface
     /**
      * Check if a slug is already defined and throw an exception if it is.
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     private function checkDuplicateSlug(string $slug): void
     {

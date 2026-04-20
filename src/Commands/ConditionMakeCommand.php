@@ -30,7 +30,7 @@ class ConditionMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $type = 'Condtion';
+    protected $type = 'Condition'; // ✅ fixed typo
 
     /**
      * Get the stub file for the generator.
@@ -39,13 +39,11 @@ class ConditionMakeCommand extends GeneratorCommand
     {
         return file_exists($customPath = $this->laravel->basePath('stubs/condition.stub'))
             ? $customPath
-            : __DIR__.'/../../stubs/condition.stub';
+            : __DIR__ . '/../../stubs/condition.stub';
     }
 
     /**
      * Get the default namespace for the class.
-     *
-     * @param  string  $rootNamespace
      */
     protected function getDefaultNamespace($rootNamespace): string
     {
@@ -54,35 +52,28 @@ class ConditionMakeCommand extends GeneratorCommand
 
     /**
      * Get the destination class path.
-     *
-     * @param  string  $name
      */
     protected function getPath($name): string
     {
-
         $customPath = config('discountify.condition_path');
 
-        return $customPath.'/'.class_basename($name).'.php';
+        return $customPath . '/' . class_basename($name) . '.php';
     }
 
     /**
-     * Get the console command arguments.
+     * Get the console command options.
      */
     protected function getOptions(): array
     {
         return [
-            ['discount', 'd', InputOption::VALUE_OPTIONAL, 'The discount for the condition', 0, []],
+            ['discount', 'd', InputOption::VALUE_OPTIONAL, 'The discount for the condition', 0],
             ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the Condition already exists'],
-            ['slug', 's', InputOption::VALUE_OPTIONAL, 'The slug for the condition', null, []],
+            ['slug', 's', InputOption::VALUE_OPTIONAL, 'The slug for the condition', null],
         ];
     }
 
     /**
      * Build the class with the given name.
-     *
-     * @param  string  $name
-     *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     protected function buildClass($name): string
     {
@@ -91,13 +82,29 @@ class ConditionMakeCommand extends GeneratorCommand
         return $this->customizeStub($stub);
     }
 
+    /**
+     * Customize stub replacements.
+     */
     protected function customizeStub(string $stub): string
     {
-        $slug = $this->option('slug') ?? $this->getNameInput();
+        $slugOption = $this->option('slug');
+        $discountOption = $this->option('discount');
 
-        return str_replace(['{{ slug }}', '{{ discount }}'], [
-            str()->snake($slug, '_'),
-            $this->option('discount'),
-        ], $stub);
+        $slug = !is_array($slugOption) && $slugOption !== null
+            ? (string) $slugOption
+            : $this->getNameInput();
+
+        $discount = !is_array($discountOption) && $discountOption !== null
+            ? (string) $discountOption
+            : '0';
+
+        return str_replace(
+            ['{{ slug }}', '{{ discount }}'],
+            [
+                str()->snake($slug, '_'),
+                $discount,
+            ],
+            $stub
+        );
     }
 }

@@ -25,6 +25,7 @@ use Safemood\Discountify\ConditionManager;
  * @method static \Safemood\Discountify\Discountify setGlobalDiscount(int $globalDiscount)
  * @method static \Safemood\Discountify\Discountify setGlobalTaxRate(float $globalTaxRate)
  * @method static \Safemood\Discountify\Discountify setItems(array $items)
+ * @method static \Safemood\Discountify\Discountify setUserId(int|string|null $userId)
  *
  * @see \Safemood\Discountify\Discountify
  */

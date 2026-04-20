@@ -35,6 +35,8 @@ use Safemood\Discountify\Events\DiscountAppliedEvent;
  * @method self removeAppliedCoupons()
  * @method self clearAppliedCoupons()
  * @method array getAppliedCoupons()
+ * @method self setUserId(int|string|null $userId)
+ * @method int|string|null getUserId()
  */
 class Discountify implements DiscountifyInterface
 {
@@ -57,6 +59,11 @@ class Discountify implements DiscountifyInterface
      * @var float The global tax rate.
      */
     protected float $globalTaxRate;
+
+    /**
+     * @var int|string|null The current user ID for user-specific coupon calculations.
+     */
+    protected int|string|null $userId = null;
 
     /**
      * Discountify constructor.
@@ -210,6 +217,26 @@ class Discountify implements DiscountifyInterface
         $this->items = $items;
 
         return $this;
+    }
+
+    /**
+     * Set the current user ID for coupon calculations.
+     *
+     * @param  int|string|null  $userId  The ID of the current user.
+     */
+    public function setUserId(int|string|null $userId): self
+    {
+        $this->userId = $userId;
+
+        return $this;
+    }
+
+    /**
+     * Get the current user ID for coupon calculations.
+     */
+    public function getUserId(): int|string|null
+    {
+        return $this->userId;
     }
 
     /**

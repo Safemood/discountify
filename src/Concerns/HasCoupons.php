@@ -48,6 +48,10 @@ trait HasCoupons
     {
         $this->coupons()->apply($code, $userId);
 
+        if ($userId !== null && method_exists($this, 'setUserId')) {
+            $this->setUserId($userId);
+        }
+
         return $this;
     }
 

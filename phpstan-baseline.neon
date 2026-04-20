@@ -1,8 +1,5 @@
 parameters:
     ignoreErrors:
         -
-            message: '#^Out of \d+ possible param types, only \d+ - [\d.]+ % actually have it\. Add more param types to get over \d+ %$#'
-            path: src/Commands/ConditionMakeCommand.php
-        -
-            message: '#^Out of \d+ possible param types, only \d+ - [\d.]+ % actually have it\. Add more param types to get over \d+ %$#'
-            path: src/Discountify.php
+            message: "#Called 'env' outside of the config directory which returns null when the config is cached, use 'config'.#"
+            path: config/discountify.php

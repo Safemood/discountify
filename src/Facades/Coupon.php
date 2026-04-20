@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Safemood\Discountify\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Safemood\Discountify\CouponManager;
 
 /**
  * Class Coupon
@@ -23,7 +24,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array appliedCoupons()
  * @method static CouponManager clear()
  *
- * @see \Safemood\Discountify\CouponManager
+ * @see CouponManager
  */
 class Coupon extends Facade
 {
@@ -32,6 +33,6 @@ class Coupon extends Facade
      */
     protected static function getFacadeAccessor(): string
     {
-        return \Safemood\Discountify\CouponManager::class;
+        return CouponManager::class;
     }
 }

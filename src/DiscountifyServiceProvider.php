@@ -33,6 +33,10 @@ class DiscountifyServiceProvider extends PackageServiceProvider
             return $conditionManager;
         });
 
+        $this->app->singleton('discountify', function (Application $app) {
+            return $app->make(ConditionManager::class);
+        });
+
         $this->app->singleton(CouponManager::class, function () {
             return new CouponManager;
         });

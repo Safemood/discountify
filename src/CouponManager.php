@@ -117,7 +117,11 @@ class CouponManager
         $coupon = $this->get($code);
 
         if ($userId !== null) {
-            $coupon['appliedFor'] = isset($coupon['appliedFor']) ? array_values(array_unique(array_merge($coupon['appliedFor'], [$userId]))) : [$userId];
+            $appliedFor = isset($coupon['appliedFor']) && is_array($coupon['appliedFor'])
+                ? $coupon['appliedFor']
+                : [];
+
+            $coupon['appliedFor'] = array_values(array_unique(array_merge($appliedFor, [$userId])));
         } else {
             $coupon['applied'] = true;
         }
@@ -269,7 +273,7 @@ class CouponManager
                     return true;
                 }
 
-                if ($userId !== null && isset($coupon['appliedFor']) && in_array($userId, $coupon['appliedFor'], true)) {
+                if ($userId !== null && isset($coupon['appliedFor']) && is_array($coupon['appliedFor']) && in_array($userId, $coupon['appliedFor'], true)) {
                     return true;
                 }
 

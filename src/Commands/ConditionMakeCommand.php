@@ -94,11 +94,21 @@ class ConditionMakeCommand extends GeneratorCommand
 
     protected function customizeStub(string $stub): string
     {
-        $slug = $this->option('slug') ?? $this->getNameInput();
+        $slug = $this->option('slug');
+
+        if (! is_string($slug) || $slug === '') {
+            $slug = $this->getNameInput();
+        }
+
+        $discount = $this->option('discount');
+
+        if (! is_scalar($discount) || $discount === '') {
+            $discount = 0;
+        }
 
         return str_replace(['{{ slug }}', '{{ discount }}'], [
             str()->snake($slug, '_'),
-            (string) ($this->option('discount') ?? 0),
+            (string) $discount,
         ], $stub);
     }
 }

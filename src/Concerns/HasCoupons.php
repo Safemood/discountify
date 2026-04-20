@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Safemood\Discountify\Concerns;
 
-use Safemood\Discountify\CouponManager;
-
 /**
  * Trait HasCoupons
  *
@@ -39,7 +37,6 @@ trait HasCoupons
     public function applyCoupon(string $code, int|string|null $userId = null): self
     {
         $this->coupons()->apply($code, $userId);
-
 
         if ($userId) {
             $this->setUserId($userId);

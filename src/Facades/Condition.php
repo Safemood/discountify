@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Safemood\Discountify\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Safemood\Discountify\ConditionManager;
 
 /**
  * Class Condition
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array getConditions()
  * @method static array getItems()
  *
- * @see \Safemood\Discountify\ConditionManager
+ * @see ConditionManager
  */
 class Condition extends Facade
 {
@@ -24,6 +25,6 @@ class Condition extends Facade
      */
     protected static function getFacadeAccessor(): string
     {
-        return \Safemood\Discountify\ConditionManager::class;
+        return ConditionManager::class;
     }
 }

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Safemood\Discountify\Concerns;
 
-use Safemood\Discountify\CouponManager;
-
 /**
  * Trait HasCoupons
  *

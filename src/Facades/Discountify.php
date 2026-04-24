@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace Safemood\Discountify\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Safemood\Discountify\ConditionManager;
+use Safemood\Discountify\CouponManager;
 
 /**
  * Class Discountify
  *
  * @method static \Safemood\Discountify\Discountify discount(float $globalDiscount)
  * @method static array getConditions()
- * @method static \Safemood\Discountify\ConditionManager conditions()
+ * @method static ConditionManager conditions()
  * @method static \Safemood\Discountify\CouponManager coupons()
  * @method static int getGlobalDiscount()
  * @method static int getGlobalTaxRate()

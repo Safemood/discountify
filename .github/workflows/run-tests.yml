@@ -17,8 +17,8 @@ jobs:
       fail-fast: true
       matrix:
         os: [ubuntu-latest]
-        php: [8.5, 8.4, 8.3]
-        laravel: [13.*, 12.*, 11.*]
+        php: [8.5, 8.4, 8.3, 8.2, 8.1]
+        laravel: [13.*, 12.*, 11.*, 10.*]
         stability: [prefer-lowest, prefer-stable]
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
@@ -48,11 +48,7 @@ jobs:
         run: composer show -D
 
       - name: Execute tests
-<<<<<<< HEAD
-        run: vendor/bin/pest --coverage --min=95
-=======
         run: vendor/bin/pest --coverage --min=95
 
       - name: Execute type coverage
         run: vendor/bin/pest --type-coverage
->>>>>>> upgrade-laravel-10-13

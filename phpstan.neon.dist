@@ -9,5 +9,7 @@ parameters:
     tmpDir: build/phpstan
     checkOctaneCompatibility: true
     checkModelProperties: true
+    type_coverage:
+        param_type: 95
     ignoreErrors:
         - identifier: missingType.iterableValue

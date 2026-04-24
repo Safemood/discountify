@@ -17,7 +17,6 @@ use Safemood\Discountify\Facades\Coupon;
 use Safemood\Discountify\Facades\Discountify as DiscountifyFacade;
 
 use function Orchestra\Testbench\workbench_path;
-use function Pest\Laravel\artisan;
 
 beforeEach(function () {
     $this->items = [
@@ -372,7 +371,7 @@ it('can create a new condition class', function () {
 
     $filePath = "$testConditionsPath/{$class}.php";
 
-    artisan('discountify:condition', [
+    $this->artisan('discountify:condition', [
         'name' => $class,
         '--slug' => 'CustomSlug',
         '--discount' => 15,
@@ -800,6 +799,38 @@ it('applies a restricted user coupon', function () {
     expect($discountedTotal)->toBe(floatval(160));
 });
 
+it('only applies a coupon to the specified user and does not discount other users', function () {
+    $coupon = [
+        'code' => 'USER_SPECIFIC20',
+        'discount' => 20,
+        'startDate' => now(),
+        'endDate' => now()->addWeek(),
+    ];
+
+    $this->discountify->addCoupon($coupon);
+    $this->discountify->applyCoupon('USER_SPECIFIC20', 1);
+
+    $userOneTotal = $this->discountify->setUserId(1)
+        ->setItems($this->items)
+        ->totalDetailed();
+
+    expect($userOneTotal['discount_rate'])->toBe(20.0);
+    expect($userOneTotal['total_after_discount'])->toBe(160.0);
+
+    $userTwoTotal = $this->discountify->setUserId(2)
+        ->setItems($this->items)
+        ->totalDetailed();
+
+    expect($userTwoTotal['discount_rate'])->toBe(0.0);
+    expect($userTwoTotal['total_after_discount'])->toBe(200.0);
+
+    $anonymousTotal = $this->discountify->setUserId(null)
+        ->setItems($this->items)
+        ->totalDetailed();
+
+    expect($anonymousTotal['discount_rate'])->toBe(0.0);
+});
+
 it('applies a limited usage coupon', function () {
 
     $expextedResult = [
@@ -1137,184 +1168,3 @@ it('calculates total amount correctly with various item quantities and discounts
 
     expect(DiscountifyFacade::totalDetailed())->toBe($expextedResult);
 });
-
-// it('handles negative discount rate properly', function () {
-
-//     $items = [
-//         [
-//             'id' => 1,
-//             'product_id' => 1,
-//             'product_name' => 'Product 1',
-//             'quantity' => 3,
-//             'price' => 20,
-//         ],
-//         [
-//             'id' => 2,
-//             'product_id' => 2,
-//             'product_name' => 'Product 2',
-//             'quantity' => 2,
-//             'price' => 30,
-//         ],
-//     ];
-
-//     DiscountifyFacade::setItems($items)
-//         ->setGlobalDiscount(-50) // Risky value: negative discount rate
-//         ->setGlobalTaxRate(8);
-
-//     $expextedResult = [
-//         'total' => 76.5,
-//         'subtotal' => 90.0,
-//         'tax_amount' => 0.0,
-//         'total_after_discount' => 76.5,
-//         'savings' => 13.5,
-//         'tax_rate' => 0.0,
-//         'discount_rate' => 15.0,
-//     ];
-
-//     expect(DiscountifyFacade::totalDetailed())->toBe($expextedResult);
-// });
-
-// it('handles discount rate greater than 100% properly', function () {
-
-//     $items = [
-//         [
-//             'id' => 1,
-//             'product_id' => 1,
-//             'product_name' => 'Product 1',
-//             'quantity' => 3,
-//             'price' => 20,
-//         ],
-//         [
-//             'id' => 2,
-//             'product_id' => 2,
-//             'product_name' => 'Product 2',
-//             'quantity' => 2,
-//             'price' => 30,
-//         ],
-//     ];
-
-//     $discountify = DiscountifyFacade::setItems($items)
-//         ->setGlobalDiscount(150) // Risky value: discount rate greater than 100%
-//         ->setGlobalTaxRate(8);
-
-//     $expextedResult = [
-//         'total' => 76.5,
-//         'subtotal' => 90.0,
-//         'tax_amount' => 0.0,
-//         'total_after_discount' => 76.5,
-//         'savings' => 13.5,
-//         'tax_rate' => 0.0,
-//         'discount_rate' => 15.0,
-//     ];
-
-//     expect(DiscountifyFacade::totalDetailed())->toBe($expextedResult);
-
-// });
-
-// it('handles negative tax rate properly', function () {
-
-//     $items = [
-//         [
-//             'id' => 1,
-//             'product_id' => 1,
-//             'product_name' => 'Product 1',
-//             'quantity' => 3,
-//             'price' => 20,
-//         ],
-//         [
-//             'id' => 2,
-//             'product_id' => 2,
-//             'product_name' => 'Product 2',
-//             'quantity' => 2,
-//             'price' => 30,
-//         ],
-//     ];
-
-//     DiscountifyFacade::setItems($items)
-//         ->setGlobalDiscount(10)
-//         ->setGlobalTaxRate(-5); // Risky value: negative tax rate
-
-//     $expextedResult = [
-//         'total' => 76.5,
-//         'subtotal' => 90.0,
-//         'tax_amount' => 0.0,
-//         'total_after_discount' => 76.5,
-//         'savings' => 13.5,
-//         'tax_rate' => 0.0,
-//         'discount_rate' => 15.0,
-//     ];
-
-//     expect(DiscountifyFacade::totalDetailed())->toBe($expextedResult);
-// });
-
-// it('handles tax rate greater than 100% properly', function () {
-
-//     $items = [
-//         [
-//             'id' => 1,
-//             'product_id' => 1,
-//             'product_name' => 'Product 1',
-//             'quantity' => 3,
-//             'price' => 20,
-//         ],
-//         [
-//             'id' => 2,
-//             'product_id' => 2,
-//             'product_name' => 'Product 2',
-//             'quantity' => 2,
-//             'price' => 30,
-//         ],
-//     ];
-
-//     DiscountifyFacade::setItems($items)
-//         ->setGlobalDiscount(10)
-//         ->setGlobalTaxRate(150); // Risky value: tax rate greater than 100%
-
-//     $expextedResult = [
-//         'total' => 76.5,
-//         'subtotal' => 90.0,
-//         'tax_amount' => 0.0,
-//         'total_after_discount' => 76.5,
-//         'savings' => 13.5,
-//         'tax_rate' => 0.0,
-//         'discount_rate' => 15.0,
-//     ];
-
-//     expect(DiscountifyFacade::totalDetailed())->toBe($expextedResult);
-// });
-
-// it('handles extreme discount and tax rates properly', function () {
-
-//     $items = [
-//         [
-//             'id' => 1,
-//             'product_id' => 1,
-//             'product_name' => 'Product 1',
-//             'quantity' => 3,
-//             'price' => 20,
-//         ],
-//         [
-//             'id' => 2,
-//             'product_id' => 2,
-//             'product_name' => 'Product 2',
-//             'quantity' => 2,
-//             'price' => 30,
-//         ],
-//     ];
-
-//     DiscountifyFacade::setItems($items)
-//         ->setGlobalDiscount(500) // Risky value: extremely high discount rate
-//         ->setGlobalTaxRate(-200); // Risky value: extremely low (negative) tax rate
-
-//     $expextedResult = [
-//         'total' => 76.5,
-//         'subtotal' => 90.0,
-//         'tax_amount' => 0.0,
-//         'total_after_discount' => 76.5,
-//         'savings' => 13.5,
-//         'tax_rate' => 0.0,
-//         'discount_rate' => 15.0,
-//     ];
-
-//     expect(DiscountifyFacade::totalDetailed())->toBe($expextedResult);
-// });

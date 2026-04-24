@@ -81,11 +81,12 @@ class CouponManager
     /**
      * Get the total discount applied by coupons.
      *
+     * @param  int|string|null  $userId  Optional. The ID of the user whose applied coupons should be counted.
      * @return float The total discount applied.
      */
-    public function couponDiscount(): float
+    public function couponDiscount(int|string|null $userId = null): float
     {
-        return collect($this->appliedCoupons())
+        return collect($this->appliedCoupons($userId))
             ->sum(fn (array $coupon) => $coupon['discount']);
     }
 
@@ -115,7 +116,11 @@ class CouponManager
 
         $coupon = $this->get($code);
 
-        $coupon['applied'] = true;
+        if ($userId !== null) {
+            $coupon['appliedFor'] = isset($coupon['appliedFor']) ? array_values(array_unique(array_merge($coupon['appliedFor'], [$userId]))) : [$userId];
+        } else {
+            $coupon['applied'] = true;
+        }
 
         $this->update($code, $coupon);
 
@@ -194,8 +199,10 @@ class CouponManager
 
         if (
             $this->isCouponSingleUse($coupon)
-            && isset($coupon['applied'])
-            && $coupon['applied']
+            && (
+                (isset($coupon['applied']) && $coupon['applied'])
+                || ! empty($coupon['usedBy'])
+            )
         ) {
             return false;
         }
@@ -220,7 +227,8 @@ class CouponManager
     {
         $this->coupons = collect($this->coupons)
             ->reject(function (array $coupon) {
-                return $coupon['applied'] ?? false;
+                return isset($coupon['applied']) && $coupon['applied']
+                    || (! empty($coupon['appliedFor'] ?? []));
             })->toArray();
 
         $this->saveState();
@@ -236,8 +244,10 @@ class CouponManager
     public function clearAppliedCoupons(): self
     {
         $this->coupons = collect($this->coupons)
-            ->reject(function (array $coupon) {
-                return $coupon['applied'] ?? false;
+            ->map(function (array $coupon) {
+                unset($coupon['applied'], $coupon['appliedFor']);
+
+                return $coupon;
             })->toArray();
 
         $this->saveState();
@@ -248,13 +258,22 @@ class CouponManager
     /**
      * Get an array of applied coupons.
      *
+     * @param  int|string|null  $userId  Optional. The ID of the user whose applied coupons should be returned.
      * @return array The list of applied coupons.
      */
-    public function appliedCoupons(): array
+    public function appliedCoupons(int|string|null $userId = null): array
     {
         return collect($this->coupons)
-            ->filter(function (array $coupon) {
-                return $coupon['applied'] ?? false;
+            ->filter(function (array $coupon) use ($userId) {
+                if (isset($coupon['applied']) && $coupon['applied']) {
+                    return true;
+                }
+
+                if ($userId !== null && isset($coupon['appliedFor']) && in_array($userId, $coupon['appliedFor'], true)) {
+                    return true;
+                }
+
+                return false;
             })->values()->all();
     }
 

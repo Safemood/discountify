@@ -6,6 +6,7 @@ namespace Safemood\Discountify;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Safemood\Discountify\Contracts\ConditionManagerInterface;
 use Safemood\Discountify\Exceptions\DuplicateSlugException;
@@ -90,7 +91,7 @@ class ConditionManager implements ConditionManagerInterface
      */
     public function discover(string $namespace = 'App\\Conditions', ?string $path = null): self
     {
-        $namespace = str()->finish($namespace, '\\');
+        $namespace = Str::finish($namespace, '\\');
 
         $directory = $path ?? base_path('app/Conditions');
 

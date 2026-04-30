@@ -3,9 +3,10 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\File;
-use Safemood\Discountify\CouponManager;
 
 use function Orchestra\Testbench\workbench_path;
+
+use Safemood\Discountify\CouponManager;
 
 beforeEach(function () {
     $this->stateFilePath = workbench_path('app/test_state.json');

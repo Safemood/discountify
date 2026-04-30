@@ -2,20 +2,22 @@
 
 declare(strict_types=1);
 
+use InvalidArgumentException;
+
+use function Orchestra\Testbench\workbench_path;
+
 use Safemood\Discountify\ConditionManager;
 use Safemood\Discountify\Exceptions\DuplicateSlugException;
 use Safemood\Discountify\Facades\Condition;
 
-use function Orchestra\Testbench\workbench_path;
-
 beforeEach(function () {
 
-    $this->conditionManger = new ConditionManager;
+    $this->conditionManager = new ConditionManager;
 });
 
 it('can add conditions using ConditionManager', function () {
 
-    $this->conditionManger
+    $this->conditionManager
         ->define('more_than_2_products_10', fn (array $items) => count($items) > 2, 10)
         ->add([
             [
@@ -31,19 +33,23 @@ it('can add conditions using ConditionManager', function () {
         ])
         ->defineIf('client_has_renewal_10', true, 10);
 
-    $conditions = $this->conditionManger->getConditions();
+    $conditions = $this->conditionManager->getConditions();
 
     expect($conditions)->toHaveCount(4);
 });
 
 it('throws exception when slug is not provided in define method', function () {
-    expect(fn () => Condition::define('', fn ($items) => count($items) > 5, 10))
-        ->toThrow(Exception::class, 'Slug must be provided.');
+    expect(function () {
+        Condition::define('', function () {
+            return true;
+        }, 10);
+    })->toThrow(InvalidArgumentException::class, 'Slug must be provided.');
 });
 
 it('throws exception when slug is not provided in defineIf method', function () {
-    expect(fn () => Condition::defineIf('', true, 10))
-        ->toThrow(Exception::class, 'Slug must be provided.');
+    expect(function () {
+        Condition::defineIf('', true, 10);
+    })->toThrow(InvalidArgumentException::class, 'Slug must be provided.');
 });
 
 it('can auto register condition classes', function () {

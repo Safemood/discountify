@@ -6,6 +6,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
+
+use function Orchestra\Testbench\workbench_path;
+
 use Safemood\Discountify\ConditionManager;
 use Safemood\Discountify\CouponManager;
 use Safemood\Discountify\Discountify;
@@ -15,8 +18,6 @@ use Safemood\Discountify\Exceptions\ZeroQuantityException;
 use Safemood\Discountify\Facades\Condition;
 use Safemood\Discountify\Facades\Coupon;
 use Safemood\Discountify\Facades\Discountify as DiscountifyFacade;
-
-use function Orchestra\Testbench\workbench_path;
 
 beforeEach(function () {
     $this->items = [

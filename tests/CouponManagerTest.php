@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
+use function Orchestra\Testbench\workbench_path;
+
 use Safemood\Discountify\CouponManager;
 use Safemood\Discountify\Exceptions\DuplicateCouponException;
 use Safemood\Discountify\Facades\Coupon;
-
-use function Orchestra\Testbench\workbench_path;
 
 beforeEach(function () {
     $this->stateFilePath = workbench_path('app/test_state.json');

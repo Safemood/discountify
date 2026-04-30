@@ -1,125 +1,48 @@
 # Changelog
 
-All notable changes to `Discountify` will be documented in this file.
+All notable changes to Discountify are documented here.
 
-## 1.5.1 - 2024-10-25
+## [2.0.0] — 2025-xx-xx
 
-## What's Changed
-* Update README.md - fix spelling mistake by @jackbayliss in https://github.com/Safemood/discountify/pull/24
-* Bump aglipanci/laravel-pint-action from 2.3.1 to 2.4 by @dependabot in https://github.com/Safemood/discountify/pull/25
-* Bump dependabot/fetch-metadata from 2.0.0 to 2.1.0 by @dependabot in https://github.com/Safemood/discountify/pull/26
-* Bump dependabot/fetch-metadata from 2.1.0 to 2.2.0 by @dependabot in https://github.com/Safemood/discountify/pull/28
-* bug fix state management issues for single-use and usage-limited coupons across instances by @Safemood in https://github.com/Safemood/discountify/pull/32
+### Breaking changes
 
-## New Contributors
-* @jackbayliss made their first contribution in https://github.com/Safemood/discountify/pull/24
+- **Dropped Laravel 10 support.** Minimum requirement is Laravel 11.
+- **Dropped PHP 8.1 support.** Minimum requirement is PHP 8.2.
+- Removed `state_file_path` config key — coupon state is now stored entirely in the database.
+- Removed the JSON-file coupon driver from v1.
 
-**Full Changelog**: https://github.com/Safemood/discountify/compare/1.5.0...1.5.1
+### Added
 
-## 1.5.0 - 2024-04-07
+- Full **condition engine** with two sources:
+  - Code-defined classes in `app/Conditions/` (auto-discovered, unchanged from v1)
+  - **Database-driven conditions** in `discountify_conditions` — manageable via any admin UI
+- **Coupon engine** backed by `discountify_coupons`:
+  - Percentage and fixed discount types
+  - Usage limits (global and per-user)
+  - Minimum order value and maximum discount cap
+  - Validity windows (`starts_at` / `expires_at`)
+  - User-restricted coupons
+  - Usage tracking in `discountify_coupon_usages`
+- **Promo engine** backed by `discountify_promos`:
+  - Auto-applied (no code required)
+  - Priority ordering
+  - Stackable / non-stackable flag
+  - JSON condition rules (same field/operator/value syntax as DB conditions)
+  - Usage tracking in `discountify_promo_usages`
+- `checkout()` method — applies all discounts, records usages, fires events in one call
+- Three typed events: `DiscountAppliedEvent`, `CouponAppliedEvent`, `PromoAppliedEvent`
+- `CouponException` with named constructors for each failure mode
+- `php artisan discountify:install` command
+- GitHub Actions CI matrix: PHP 8.2/8.3/8.4 × Laravel 11/12/13
+- `--type` flag on `php artisan discountify:condition`
 
-## What's Changed
+### Changed
 
-* **Logic and Calculation Bug Fixes:** All logic and calculation bugs have been addressed and resolved to enhance the reliability and accuracy of the package.
-* Added `totalDetailed()`: This method calculates the total with a detailed breakdown.
-* Added `savings()`: This method calculates the amount saved.
-* Updated `calculateTaxAmount()`: This method now calculates the tax amount, with an optional parameter to toggle between before and after discount (default is before discount).
-* **CouponAppliedEvent:** Added an event for when a coupon is applied.
-* **DuplicateCouponException:** Implemented an exception for handling duplicate coupons.
-* **Test Coverage:** Increased test coverage (99.6%) provides strong validation for the functionality of the introduced methods.
-* **Type Coverage:** Achieving a robust type coverage of (98.8%) ensures the solidity and accuracy of the codebase, reinforcing its reliability and correctness.
-* **Spread Cheat:** I used a spread cheat (yes excel 😅 ) to validate all results [link](https://docs.google.com/spreadsheets/d/1ki9xv1ivADVrvEEVj4L7C20mFNuN9l_S/edit#gid=1398535476) (The results are validated by an accounting expert).
-* **Manual Validation:** Manual calculations were performed on a variety of test data scenarios to ensure the accuracy of the package results.
-* Cross-checked the results with several websites to ensure accuracy:
+- `ConditionInterface` simplified — implementations only need `__invoke(array $items): bool`
+- `DiscountifyServiceProvider` uses `callAfterResolving` (Laravel 11+ pattern)
+- Events are now `final` classes with `readonly` constructor properties
+- `CouponException` is now `final`
 
-1. [Shopify Discount Calculator](https://www.shopify.com/tools/discount-calculator)
-2. [Financial Calculator](https://www.fncalculator.com/financialcalculator?type=discountCalculator)
-3. [Discount Calculator](https://www.calculator.net/discount-calculator.html)
+## [1.5.1] — 2024-10-25
 
-
-**Full Changelog**: https://github.com/Safemood/discountify/compare/1.4.3...1.5.0
-
-## 1.4.3 - 2024-03-31
-
-## What's Changed
-* Bug Fix: Ensure Limited Usage Coupon is Applied Only Once by @Safemood in https://github.com/Safemood/discountify/pull/22
-
-
-**Full Changelog**: https://github.com/Safemood/discountify/compare/1.4.2...1.4.3
-
-## 1.4.2 - 2024-03-31
-
-## What's Changed
-* fixed bug reduce the number and not percent by @Safemood in https://github.com/Safemood/discountify/pull/20
-
-**Full Changelog**: https://github.com/Safemood/discountify/compare/1.4.1...1.4.2
-
-## 1.4.1 - 2024-03-27
-
-## What's Changed
-* Bump ramsey/composer-install from 2 to 3 by @dependabot in https://github.com/Safemood/discountify/pull/13
-* Update composer.json for Laravel 11 support by @imabulhasan99 in https://github.com/Safemood/discountify/pull/11
-* Update run-tests.yml by @imabulhasan99 in https://github.com/Safemood/discountify/pull/12
-* fix tests by @Safemood in https://github.com/Safemood/discountify/pull/14
-* Bump dependabot/fetch-metadata from 1.6.0 to 2.0.0 by @dependabot in https://github.com/Safemood/discountify/pull/15
-* Update version constraint for illuminate/contracts by @Safemood in https://github.com/Safemood/discountify/pull/17
-
-
-**Full Changelog**: https://github.com/Safemood/discountify/compare/1.4.0...1.4.1
-
-## 1.4.0 - 2024-02-11
-
-## What's Changed
-* Added Coupon Based Discounts  by @Safemood in https://github.com/Safemood/discountify/pull/10
-
-
-**Full Changelog**: https://github.com/Safemood/discountify/compare/1.3.0...1.4.0
-
-## 1.3.0 - 2024-01-26
-
-## What's Changed
-* Fix duplicates conditions by @Safemood in https://github.com/Safemood/discountify/pull/5
-* Generate conditions classes command by @Safemood in https://github.com/Safemood/discountify/pull/6
-* Fix class condition not found by @Safemood in https://github.com/Safemood/discountify/pull/7
-* Events tracking by @Safemood in https://github.com/Safemood/discountify/pull/8
-
-
-**Full Changelog**: https://github.com/Safemood/discountify/compare/1.2.0...1.3.0
-
-## 1.2.0 - 2024-01-21
-
-## What's Changed
-* Added the ability to skip conditions by @Safemood in https://github.com/Safemood/discountify/pull/4
-
-
-**Full Changelog**: https://github.com/Safemood/discountify/compare/1.1.0...1.2.0
-
-## 1.1.0 - 2024-01-21
-
-## What's Changed
-* added  Class-Based Conditions by @Safemood in https://github.com/Safemood/discountify/pull/3
-
-**Full Changelog**: https://github.com/Safemood/discountify/compare/1.0.0...1.1.0
-
-## 1.0.0 - 2024-01-17
-
-## What's Changed
-* Added dynamic fields by @Safemood in https://github.com/Safemood/discountify/pull/1
-* Added slug parameter to define and defineIf methods by @Safemood in https://github.com/Safemood/discountify/pull/2
-
-## Breaking Changes
-- The `define` and `defineIf` methods now require a `slug` parameter.
-
-**Full Changelog**: https://github.com/Safemood/discountify/compare/0.4.0...1.0.0
-
-## 0.4.0 - 2024-01-15
-
-**Full Changelog**: https://github.com/Safemood/discountify/compare/0.1.0...0.4.0
-
-## 0.3.1 - 2024-01-15
-
-**Full Changelog**: https://github.com/Safemood/discountify/compare/0.1.0...0.3.1
-
-## 0.1.0 - 2024-01-15
-
-**Full Changelog**: https://github.com/Safemood/discountify/commits/0.1.0
+Last release with Laravel 10 and PHP 8.1 support.

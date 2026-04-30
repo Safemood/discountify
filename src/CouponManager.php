@@ -131,7 +131,7 @@ class CouponManager
         $this->decrementUsageLimit($coupon);
 
         if (config('discountify.fire_events')) {
-            event(new CouponAppliedEvent($coupon));
+            event(new CouponAppliedEvent(coupon: $coupon, discount: $coupon['discount'] ?? 0.0));
         }
 
         $this->saveState();

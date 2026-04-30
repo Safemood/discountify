@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Safemood\Discountify\Events;
 
-class DiscountAppliedEvent
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+
+final class DiscountAppliedEvent
 {
+    use Dispatchable, SerializesModels;
+
     public function __construct(
-        public string $slug,
-        public float $discount,
-        public mixed $condition
+        public readonly array $items,
+        public readonly float $discountAmount,
+        public readonly array $conditions = [],
     ) {}
 }

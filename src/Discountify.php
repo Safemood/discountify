@@ -4,312 +4,273 @@ declare(strict_types=1);
 
 namespace Safemood\Discountify;
 
-use Safemood\Discountify\Concerns\HasCalculations;
-use Safemood\Discountify\Concerns\HasConditions;
-use Safemood\Discountify\Concerns\HasCoupons;
-use Safemood\Discountify\Concerns\HasDynamicFields;
-use Safemood\Discountify\Contracts\DiscountifyInterface;
+use Safemood\Discountify\Events\CouponAppliedEvent;
 use Safemood\Discountify\Events\DiscountAppliedEvent;
+use Safemood\Discountify\Events\PromoAppliedEvent;
+use Safemood\Discountify\Exceptions\CouponException;
+use Safemood\Discountify\Support\ConditionEngine;
+use Safemood\Discountify\Support\CouponEngine;
+use Safemood\Discountify\Support\PromoEngine;
 
 /**
- * Class Discountify
+ * Discountify v2 — main service.
  *
- * @method array getConditions()
- * @method ConditionManager conditions()
- * @method float getGlobalTaxRate()
- * @method float getGlobalDiscount()
- * @method array getItems()
- * @method float subtotal()
- * @method float tax()
- * @method float taxAmount(bool $afterDiscount = false)
- * @method float total()
- * @method float totalWithDiscount(?float $globalDiscount = null)
- * @method self discount(float $globalDiscount)
- * @method self setFields(array $fields)
- * @method CouponManager coupons()
- * @method self addCoupon(array $coupon)
- * @method self removeCoupon(string $code)
- * @method self applyCoupon(string $code, int|string $userId = null)
- * @method array|null getCoupon(string $code)
- * @method float getCouponDiscount()
- * @method self removeAppliedCoupons()
- * @method self clearAppliedCoupons()
- * @method array getAppliedCoupons()
- * @method self setUserId(int|string|null $userId)
- * @method int|string|null getUserId()
+ * Usage:
+ *   Discountify::setItems($cart)
+ *       ->setGlobalDiscount(5)
+ *       ->setTaxRate(20)
+ *       ->applyCoupon('SUMMER10')
+ *       ->forUser(auth()->id())
+ *       ->checkout();
  */
-class Discountify implements DiscountifyInterface
+class Discountify
 {
-    use HasCalculations;
-    use HasConditions;
-    use HasCoupons;
-    use HasDynamicFields;
+    // PHP 8.4 — asymmetric visibility for items (readable outside, writable only here)
+    public private(set) array $items = [];
 
-    /**
-     * @var array<mixed> The items in the cart.
-     */
-    protected array $items = [];
+    private string $priceField = 'price';
 
-    /**
-     * @var float The global discount percentage.
-     */
-    protected float $globalDiscount;
+    private string $quantityField = 'quantity';
 
-    /**
-     * @var float The global tax rate.
-     */
-    protected float $globalTaxRate;
-
-    /**
-     * @var int|string|null The current user ID for user-specific coupon calculations.
-     */
-    protected int|string|null $userId = null;
-
-    /**
-     * Discountify constructor.
-     */
     public function __construct(
-        protected ConditionManager $conditionManager,
-        protected CouponManager $couponManager
-    ) {
-        $this->setGlobalDiscount(config('discountify.global_discount'));
-        $this->setGlobalTaxRate(config('discountify.global_tax_rate'));
-    }
+        private readonly ConditionEngine $conditionEngine,
+        private readonly CouponEngine $couponEngine,
+        private readonly PromoEngine $promoEngine,
+        private float $globalDiscount = 0.0,
+        private float $taxRate = 0.0,
+    ) {}
 
-    /**
-     * Set the global discount.
-     *
-     * @param  float  $globalDiscount  The global discount percentage.
-     */
-    public function discount(float $globalDiscount): self
-    {
-        $this->globalDiscount = $globalDiscount;
+    // ── Cart setup ────────────────────────────────────────────────────────────
 
-        return $this;
-    }
-
-    /**
-     * Calculate the total discount rate percentage based on conditions.
-     */
-    public function conditionDiscount(): float
-    {
-        return array_reduce(
-            $this->conditionManager->getConditions(),
-            function (float $discount, array $condition): float {
-                $result = is_callable($condition['condition'])
-                    ? $condition['condition']($this->items)
-                    : $condition['condition'];
-
-                if (config('discountify.fire_events')) {
-                    event(new DiscountAppliedEvent($condition['slug'], $condition['discount'], $condition['condition']));
-                }
-
-                return (float) $discount + match (true) {
-                    $result === true => $condition['discount'],
-                    default => 0,
-                };
-            },
-            0
-        );
-    }
-
-    /**
-     * Get the ConditionManager instance.
-     */
-    public function conditions(): ConditionManager
-    {
-        return $this->conditionManager;
-    }
-
-    /**
-     * Get the CouponManager instance.
-     */
-    public function coupons(): CouponManager
-    {
-        return $this->couponManager;
-    }
-
-    /**
-     * Get the global discount percentage.
-     *
-     * @return float The global discount percentage.
-     */
-    public function getGlobalDiscount(): float
-    {
-        return $this->globalDiscount;
-    }
-
-    /**
-     * Get the global tax rate.
-     *
-     * @return float The global tax rate.
-     */
-    public function getGlobalTaxRate(): float
-    {
-        return $this->globalTaxRate;
-    }
-
-    /**
-     * Get the items in the cart.
-     *
-     * @return array<mixed> The items in the cart.
-     */
-    public function getItems(): array
-    {
-        return $this->items;
-    }
-
-    /**
-     * Set the ConditionManager instance.
-     *
-     * @param  ConditionManager  $conditionManager  The ConditionManager instance to set.
-     */
-    public function setConditionManager(ConditionManager $conditionManager): self
-    {
-        $this->conditionManager = $conditionManager;
-
-        return $this;
-    }
-
-    /**
-     * Set the CouponManager instance.
-     *
-     * @param  CouponManager  $couponManager  The CouponManager instance to set.
-     */
-    public function setCouponManager(CouponManager $couponManager): self
-    {
-        $this->couponManager = $couponManager;
-
-        return $this;
-    }
-
-    /**
-     * Set the global discount.
-     *
-     * @param  float  $globalDiscount  The global discount percentage to set.
-     */
-    public function setGlobalDiscount(float $globalDiscount): self
-    {
-        $this->globalDiscount = $globalDiscount;
-
-        return $this;
-    }
-
-    /**
-     * Set the global tax rate.
-     *
-     * @param  float  $globalTaxRate  The global tax rate to set.
-     */
-    public function setGlobalTaxRate(float $globalTaxRate): self
-    {
-        $this->globalTaxRate = $globalTaxRate;
-
-        return $this;
-    }
-
-    /**
-     * Set the items in the cart.
-     *
-     * @param  array<mixed>  $items  The items to set in the cart.
-     */
-    public function setItems(array $items): self
+    public function setItems(array $items): static
     {
         $this->items = $items;
 
         return $this;
     }
 
-    /**
-     * Set the current user ID for coupon calculations.
-     *
-     * @param  int|string|null  $userId  The ID of the current user.
-     */
-    public function setUserId(int|string|null $userId): self
+    public function setGlobalDiscount(float $discount): static
     {
-        $this->userId = $userId;
+        $this->globalDiscount = $discount;
 
         return $this;
     }
 
-    /**
-     * Get the current user ID for coupon calculations.
-     */
-    public function getUserId(): int|string|null
+    public function setTaxRate(float $rate): static
     {
-        return $this->userId;
+        $this->taxRate = $rate;
+
+        return $this;
     }
 
-    /**
-     * Calculate the subtotal of the cart.
-     *
-     * @return float The subtotal of the cart.
-     */
+    public function forUser(int|string|null $userId): static
+    {
+        $this->couponEngine->forUser($userId);
+        $this->promoEngine->forUser($userId);
+
+        return $this;
+    }
+
+    public function setFields(string $price = 'price', string $quantity = 'quantity'): static
+    {
+        $this->priceField = $price;
+        $this->quantityField = $quantity;
+
+        return $this;
+    }
+
+    // ── Condition passthrough ─────────────────────────────────────────────────
+
+    public function define(array $conditions): static
+    {
+        $this->conditionEngine->add($conditions);
+
+        return $this;
+    }
+
+    public function skipCondition(string $slug): static
+    {
+        $_ = $this->conditionEngine->skip($slug);
+
+        return $this;
+    }
+
+    // ── Coupon passthrough ────────────────────────────────────────────────────
+
+    public function applyCoupon(string $code): static
+    {
+        $this->couponEngine->apply($code);
+
+        return $this;
+    }
+
+    public function removeCoupon(): static
+    {
+        $this->couponEngine->clear();
+
+        return $this;
+    }
+
+    // ── Calculations (preview — no side-effects) ──────────────────────────────
+
     public function subtotal(): float
     {
-        return $this->calculateSubtotal();
+        return round(
+            collect($this->items)->sum(
+                fn (array $item): float => ($item[$this->priceField] ?? 0) * ($item[$this->quantityField] ?? 1)
+            ),
+            2
+        );
     }
 
     /**
-     * Calculate the total tax of the cart.
-     *
-     * @param  float|null  $globalTaxRate  The global tax rate. Defaults to null.
-     * @return float The total tax of the cart.
+     * Total discount amount from all sources combined.
+     * Safe to call multiple times — does NOT record usages.
      */
-    public function tax(?float $globalTaxRate = null): float
+    public function totalDiscount(): float
     {
-        return $this->calculateTotalWithTaxes($globalTaxRate);
+        $subtotal = $this->subtotal();
+
+        $globalAmount = round($subtotal * ($this->globalDiscount / 100), 2);
+        $conditionPct = $this->conditionEngine->totalDiscount($this->items, $subtotal);
+        $conditionAmount = round($subtotal * ($conditionPct / 100), 2);
+        $promoAmount = $this->promoEngine->apply($this->items, $subtotal)['discount'];
+
+        $couponAmount = 0.0;
+        if ($this->couponEngine->hasCoupon()) {
+            try {
+                $remaining = max(0.0, $subtotal - $globalAmount - $conditionAmount - $promoAmount);
+                $couponAmount = $this->couponEngine->calculateDiscount($remaining);
+            } catch (CouponException) {
+                $couponAmount = 0.0;
+            }
+        }
+
+        return round($globalAmount + $conditionAmount + $promoAmount + $couponAmount, 2);
     }
 
-    /**
-     * Calculate the total tax amount of the cart.
-     *
-     * @param  float|null  $globalTaxRate  The global tax rate. Defaults to null.
-     * @return float The total tax amount of the cart.
-     */
-    public function taxAmount(?float $globalTaxRate = null): float
-    {
-        return $this->calculateTaxAmount($globalTaxRate);
-    }
-
-    /**
-     * Calculate the savings of the cart.
-     *
-     * @param  float|null  $globalDiscount  The global discount percentage. Defaults to null.
-     * @return float The savings of the cart.
-     */
-    public function savings(?float $globalDiscount = null): float
-    {
-        return round($this->calculateSavings($globalDiscount), 3);
-    }
-
-    /**
-     * Calculate the final total of the cart.
-     *
-     * @return float The final total of the cart.
-     */
     public function total(): float
     {
-        return round($this->calculateFinalTotal(), 3);
+        return round(max(0.0, $this->subtotal() - $this->totalDiscount()), 2);
     }
 
-    /**
-     * Calculate the detailed final total of the cart.
-     *
-     * @return array The detailed final total of the cart.
-     */
-    public function totalDetailed(): array
+    public function tax(): float
     {
-        return $this->calculateFinalTotalDetails();
+        return round($this->total() * ($this->taxRate / 100), 2);
     }
 
-    /**
-     * Calculate the total with applied discount.
-     *
-     * @param  float|null  $globalDiscount  The global discount percentage. Defaults to null.
-     * @return float The total with applied discount.
-     */
-    public function totalWithDiscount(?float $globalDiscount = null): float
+    public function totalWithTax(): float
     {
-        return $this->calculateTotalAfterDiscount($globalDiscount);
+        return round($this->total() + $this->tax(), 2);
+    }
+
+    // ── Checkout (side-effects: records usages, fires events) ─────────────────
+
+    /**
+     * Apply all discounts, record usages in DB, fire events.
+     * Call exactly once at order placement — not for price previews.
+     *
+     * @throws CouponException
+     */
+    public function checkout(): array
+    {
+        $subtotal = $this->subtotal();
+        $fireEvents = config('discountify.fire_events', true);
+
+        // 1 — Global
+        $globalAmount = round($subtotal * ($this->globalDiscount / 100), 2);
+
+        // 2 — Conditions
+        $conditionPct = $this->conditionEngine->totalDiscount($this->items, $subtotal);
+        $conditionAmount = round($subtotal * ($conditionPct / 100), 2);
+
+        if ($conditionAmount > 0 && $fireEvents) {
+            DiscountAppliedEvent::dispatch(
+                items: $this->items,
+                discountAmount: $conditionAmount,
+                conditions: $this->conditionEngine->evaluate($this->items)->toArray(),
+            );
+        }
+
+        // 3 — Promos (records usages)
+        $promoResult = $this->promoEngine->redeem($this->items, $subtotal);
+        if (! empty($promoResult['promos']) && $fireEvents) {
+            PromoAppliedEvent::dispatch(
+                items: $this->items,
+                promos: $promoResult['promos'],
+                discount: $promoResult['discount'],
+            );
+        }
+
+        // 4 — Coupon (records usage)
+        $couponResult = null;
+        if ($this->couponEngine->hasCoupon()) {
+            $remaining = max(0.0, $subtotal - $globalAmount - $conditionAmount - $promoResult['discount']);
+            $couponResult = $this->couponEngine->redeem($remaining);
+
+            if ($fireEvents) {
+                CouponAppliedEvent::dispatch(
+                    items: $this->items,
+                    coupon: $couponResult['coupon'],
+                    discount: $couponResult['discount'],
+                );
+            }
+        }
+
+        $totalDiscount = round(
+            $globalAmount + $conditionAmount + $promoResult['discount'] + ($couponResult['discount'] ?? 0),
+            2
+        );
+
+        $total = round(max(0.0, $subtotal - $totalDiscount), 2);
+        $tax = round($total * ($this->taxRate / 100), 2);
+        $totalWithTax = round($total + $tax, 2);
+
+        return [
+            'subtotal' => $subtotal,
+            'global_discount' => $globalAmount,
+            'condition_discount' => $conditionAmount,
+            'promo_discount' => $promoResult['discount'],
+            'coupon_discount' => round($couponResult['discount'] ?? 0, 2),
+            'total_discount' => $totalDiscount,
+            'total' => $total,
+            'tax' => $tax,
+            'total_with_tax' => $totalWithTax,
+            'coupon' => $couponResult,
+            'promos' => $promoResult['promos'],
+        ];
+    }
+
+    // ── Engine accessors ──────────────────────────────────────────────────────
+
+    public function conditions(): ConditionEngine
+    {
+        return $this->conditionEngine;
+    }
+
+    public function coupons(): CouponEngine
+    {
+        return $this->couponEngine;
+    }
+
+    public function promos(): PromoEngine
+    {
+        return $this->promoEngine;
+    }
+
+    // ── API Routes ────────────────────────────────────────────────────────────
+
+    /**
+     * Register the Discountify API routes.
+     *
+     * Call this in your routes file to enable the API:
+     *
+     *   Route::middleware(['auth:sanctum'])->group(function () {
+     *       Discountify::routes();
+     *   });
+     */
+    public static function routes(): void
+    {
+        require __DIR__.'/../routes/api.php';
     }
 }
